@@ -1,10 +1,15 @@
 function handleHTTP(req, res) {
   if (req.method === 'GET') {
-    req.addListener('end', function() {
-      req.url = req.url.replace(/.*/, '/site.html');
+    if (req.url === '/') {
+      req.addListener('end', function() {
+        req.url = req.url.replace(/.*/, '/site.html');
+        static_files.serve(req, res);
+      });
+      req.resume();
+    } else {
       static_files.serve(req, res);
-    });
-    req.resume();
+      req.resume();
+    }
   } else {
     res.writeHead(403);
     res.end();
