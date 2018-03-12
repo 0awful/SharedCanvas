@@ -14,17 +14,20 @@ body {
   border-radius: 10px;
   padding-top: 5vh;
   padding-bottom: 5vh;
+  margin-left: 1vh;
   margin-top: 5vh;
   margin-bottom: 5vh;
-  width: 5%;
+  width: 15vh;
   height: 90vh;
+  text-align: center;
 }
 
 #canvasContainer {
   background-color: white;
-  float: right;
+  float: left;
   border: 1px solid black;
-  width: 94%;
-  height: 100vh;
+  margin-left: 17vh;
+  width: 1000px;
+  height: 1000px;
   overflow: hidden;
 }
