@@ -4,7 +4,10 @@ let tools = document.getElementById('tools');
 // set this object to contain some basic things
 tools.innerHTML = `
 
-<p> red </p>
+<input id="purple" type="button" value="purple" onclick="changeColor(colorPurple);" />
+<input id="Green" type="button" value="Green" onclick="changeColor(colorGreen);" />
+<input id="Yellow" type="button" value="Yellow" onclick="changeColor(colorYellow);" />
+<input id="Brown" type="button" value="Brown" onclick="changeColor(colorBrown);" />
 <p> blue </p>
 <p> yellow </p>
 <p> green </p>
@@ -16,17 +19,18 @@ tools.innerHTML = `
 <p> black </p>
 `;
 
-// // get our canvas and it's container
-// var canvas = document.getElementById('canvas');
-// var canvasContainer = document.getElementById('canvasContainer');
-//
-
-//
-// // get the canvas context
-// context = canvas.getContext('2d');
-
+// define canvas specifications
 let canvasWidth = 1000;
 let canvasHeight = 1000;
+
+// color specifications
+var colorPurple = '#cb3594';
+var colorGreen = '#659b41';
+var colorYellow = '#ffcf33';
+var colorBrown = '#986928';
+
+var curColor = colorPurple;
+var clickColor = new Array();
 
 let canvasDiv = document.getElementById('canvasContainer');
 canvas = document.createElement('canvas');
@@ -39,11 +43,9 @@ if (typeof G_vmlCanvasManager != 'undefined') {
 }
 let context = canvas.getContext('2d');
 
-// // make the canvas occupy the container and update whenever the container changes size, like if the browser changes size
-// window.onload = window.onresize = function() {
-//   canvas.width = canvasContainer.innerWidth;
-//   canvas.height = canvasContainer.innerHeight;
-// };
+function changeColor(color) {
+  curColor = color;
+}
 
 $('#canvas').mousedown(function(e) {
   var mouseX = e.pageX - this.offsetLeft;
@@ -78,12 +80,12 @@ function addClick(x, y, dragging) {
   clickX.push(x);
   clickY.push(y);
   clickDrag.push(dragging);
+  clickColor.push(curColor);
 }
 
 function redraw() {
   context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
 
-  context.strokeStyle = '#df4b26';
   context.lineJoin = 'round';
   context.lineWidth = 5;
 
@@ -96,6 +98,7 @@ function redraw() {
     }
     context.lineTo(clickX[i], clickY[i]);
     context.closePath();
+    context.strokeStyle = clickColor[i];
     context.stroke();
   }
 }
