@@ -21,6 +21,7 @@ tools.innerHTML = `
 let timerTemplate = 'Timer: <br>';
 let timerReady = timerTemplate + 'Ready';
 let intialTimerValue = 15;
+let timerRunning = false;
 
 let timer = document.getElementById('timer');
 timer.innerHTML = timerReady;
@@ -39,13 +40,17 @@ function updateTimer(value) {
 }
 
 function startTimer(value) {
-  timerInterval = setInterval(function() {
-    value--;
-    updateTimer(value);
-    if (value == 0) {
-      clearInterval(timerInterval);
-    }
-  }, 1000);
+  if (timerRunning == false) {
+    timerRunning = true;
+    timerInterval = setInterval(function() {
+      value--;
+      updateTimer(value);
+      if (value == 0) {
+        timerRunning = false;
+        clearInterval(timerInterval);
+      }
+    }, 1000);
+  }
 }
 
 // define canvas specifications
@@ -67,7 +72,7 @@ let colorGray = '#D3D3D3';
 let curColor = colorPurple;
 let clickColor = new Array();
 let initialRadius = 15;
-let radiusFalloffModifier = 1;
+let radiusFalloffModifier = 0.02;
 let radiusArray = new Array();
 
 let canvasDiv = document.getElementById('canvasContainer');
@@ -103,6 +108,8 @@ $('#canvas').mousemove(function(e) {
 
 $('#canvas').mouseup(function(e) {
   paint = false;
+  radius = 0;
+  startTimer(intialTimerValue);
 });
 
 $('#canvas').mouseleave(function(e) {
@@ -115,9 +122,11 @@ var clickDrag = new Array();
 var paint;
 
 let radius = initialRadius;
+let lastX;
+let lastY;
 
 function addClick(x, y, dragging) {
-  if (radius === 0) {
+  if (radius <= 0) {
     paint = false;
     startTimer(intialTimerValue);
   } else {
@@ -126,7 +135,14 @@ function addClick(x, y, dragging) {
     radiusArray.push(radius);
     clickDrag.push(dragging);
     clickColor.push(curColor);
-    radius = radius - radiusFalloffModifier;
+    if (dragging) {
+      displaceX = Math.abs(lastX - x);
+      displaceY = Math.abs(lastY - y);
+      displacement = displaceX ** 2 + displaceY ** 2;
+      radius = radius - radiusFalloffModifier * displacement;
+    }
+    lastX = x;
+    lastY = y;
   }
 }
 
