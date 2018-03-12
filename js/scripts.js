@@ -8,15 +8,13 @@ tools.innerHTML = `
 <input id="Green" type="button" value="Green" onclick="changeColor(colorGreen);" />
 <input id="Yellow" type="button" value="Yellow" onclick="changeColor(colorYellow);" />
 <input id="Brown" type="button" value="Brown" onclick="changeColor(colorBrown);" />
-<p> blue </p>
-<p> yellow </p>
-<p> green </p>
-<p> purple </p>
-<p> orange </p>
-<p> pink </p>
-<p> teal </p>
-<p> white </p>
-<p> black </p>
+<input id="Red" type="button" value="Red" onclick="changeColor(colorRed);" />
+<input id="Blue" type="button" value="Blue" onclick="changeColor(colorBlue);" />
+<input id="Orange" type="button" value="Orange" onclick="changeColor(colorOrange);" />
+<input id="White" type="button" value="White" onclick="changeColor(colorWhite);" />
+<input id="Black" type="button" value="Black" onclick="changeColor(colorBlack);" />
+<input id="Gray" type="button" value="Gray" onclick="changeColor(colorGray);" />
+
 `;
 
 // define canvas specifications
@@ -24,13 +22,19 @@ let canvasWidth = 1000;
 let canvasHeight = 1000;
 
 // color specifications
-var colorPurple = '#cb3594';
-var colorGreen = '#659b41';
-var colorYellow = '#ffcf33';
-var colorBrown = '#986928';
+let colorPurple = '#cb3594';
+let colorGreen = '#659b41';
+let colorYellow = '#ffcf33';
+let colorBrown = '#986928';
+let colorRed = '#ff0000';
+let colorBlue = '#0000ff';
+let colorOrange = '#FFA500';
+let colorWhite = '#ffffff';
+let colorBlack = '#000000';
+let colorGray = '#D3D3D3';
 
-var curColor = colorPurple;
-var clickColor = new Array();
+let curColor = colorPurple;
+let clickColor = new Array();
 
 let canvasDiv = document.getElementById('canvasContainer');
 canvas = document.createElement('canvas');
