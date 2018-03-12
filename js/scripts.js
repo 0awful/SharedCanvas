@@ -15,7 +15,38 @@ tools.innerHTML = `
 <input id="Black" type="button" value="Black" onclick="changeColor(colorBlack);" />
 <input id="Gray" type="button" value="Gray" onclick="changeColor(colorGray);" />
 
+
 `;
+
+let timerTemplate = 'Timer: <br>';
+let timerReady = timerTemplate + 'Ready';
+let intialTimerValue = 15;
+
+let timer = document.getElementById('timer');
+timer.innerHTML = timerReady;
+
+function refreshInk() {
+  radius = initialRadius;
+}
+
+function updateTimer(value) {
+  if (value == 0) {
+    timer.innerHTML = timerReady;
+    refreshInk();
+  } else {
+    timer.innerHTML = timerTemplate + value;
+  }
+}
+
+function startTimer(value) {
+  timerInterval = setInterval(function() {
+    value--;
+    updateTimer(value);
+    if (value == 0) {
+      clearInterval(timerInterval);
+    }
+  }, 1000);
+}
 
 // define canvas specifications
 let canvasWidth = 1000;
@@ -35,6 +66,9 @@ let colorGray = '#D3D3D3';
 
 let curColor = colorPurple;
 let clickColor = new Array();
+let initialRadius = 15;
+let radiusFalloffModifier = 1;
+let radiusArray = new Array();
 
 let canvasDiv = document.getElementById('canvasContainer');
 canvas = document.createElement('canvas');
@@ -80,11 +114,20 @@ var clickY = new Array();
 var clickDrag = new Array();
 var paint;
 
+let radius = initialRadius;
+
 function addClick(x, y, dragging) {
-  clickX.push(x);
-  clickY.push(y);
-  clickDrag.push(dragging);
-  clickColor.push(curColor);
+  if (radius === 0) {
+    paint = false;
+    startTimer(intialTimerValue);
+  } else {
+    clickX.push(x);
+    clickY.push(y);
+    radiusArray.push(radius);
+    clickDrag.push(dragging);
+    clickColor.push(curColor);
+    radius = radius - radiusFalloffModifier;
+  }
 }
 
 function redraw() {
@@ -102,6 +145,7 @@ function redraw() {
     }
     context.lineTo(clickX[i], clickY[i]);
     context.closePath();
+    context.lineWidth = radiusArray[i];
     context.strokeStyle = clickColor[i];
     context.stroke();
   }
