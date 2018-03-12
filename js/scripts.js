@@ -42,6 +42,7 @@ function updateTimer(value) {
 function startTimer(value) {
   if (timerRunning == false) {
     timerRunning = true;
+    updateTimer(value);
     timerInterval = setInterval(function() {
       value--;
       updateTimer(value);
