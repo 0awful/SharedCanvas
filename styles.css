@@ -1,0 +1,30 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #51445f;
+}
+
+#tools {
+  background-color: #9597b1;
+  border: 1px solid #e2d09c;
+  position: fixed;
+  float: left;
+  border-radius: 10px;
+  padding-top: 5vh;
+  padding-bottom: 5vh;
+  margin-top: 5vh;
+  margin-bottom: 5vh;
+  width: 5%;
+  height: 90vh;
+}
+
+#canvasContainer {
+  background-color: white;
+  float: right;
+  border: 1px solid black;
+  width: 94%;
+  height: 100vh;
+  overflow: hidden;
+}
