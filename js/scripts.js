@@ -126,16 +126,33 @@ let radius = initialRadius;
 let lastX;
 let lastY;
 
+function pushDrawing(drawing) {
+  clickX.push(drawing.x);
+  clickY.push(drawing.y);
+  radiusArray.push(drawing.radius);
+  clickDrag.push(drawing.dragging);
+  clickColor.push(drawing.clickColor);
+}
+
+function emitDrawing(drawing) {
+  console.log(drawing);
+  socket.emit('drawing', drawing);
+}
+
 function addClick(x, y, dragging) {
   if (radius <= 0) {
     paint = false;
     startTimer(intialTimerValue);
   } else {
-    clickX.push(x);
-    clickY.push(y);
-    radiusArray.push(radius);
-    clickDrag.push(dragging);
-    clickColor.push(curColor);
+    drawing = {
+      x: x,
+      y: y,
+      radius: radius,
+      dragging: dragging,
+      clickColor: curColor
+    };
+    pushDrawing(drawing);
+    emitDrawing(drawing);
     if (dragging) {
       displaceX = Math.abs(lastX - x);
       displaceY = Math.abs(lastY - y);
@@ -167,3 +184,26 @@ function redraw() {
     context.stroke();
   }
 }
+
+var socket = io.connect('/');
+socket.on('connect', function() {
+  console.log('Connected!');
+  console.log(socket);
+});
+
+socket.on('drawing', function(drawing) {
+  console.log(drawing);
+  pushDrawing(drawing);
+  redraw();
+});
+
+socket.on('disconnect', function() {
+  console.log('disconnected');
+});
+
+socket.on('updateDrawings', function(drawings) {
+  for (let i = 0; i < drawings.length; i++) {
+    pushDrawing(drawings[i]);
+  }
+  redraw();
+});

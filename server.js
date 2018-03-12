@@ -1,5 +1,8 @@
 function handleHTTP(req, res) {
   if (req.method === 'GET') {
+    if (req.url == '/resetcanvas') {
+      drawings = [];
+    }
     if (req.url === '/') {
       req.addListener('end', function() {
         req.url = req.url.replace(/.*/, '/site.html');
@@ -16,6 +19,22 @@ function handleHTTP(req, res) {
   }
 }
 
+function handleIO(socket) {
+  function disconnect() {
+    console.log('client disconnected');
+  }
+
+  console.log('client Connected');
+  socket.emit('updateDrawings', drawings);
+  socket.on('disconnect', disconnect);
+
+  socket.on('drawing', function(drawing) {
+    drawings.push(drawing);
+
+    io.sockets.emit('drawing', drawing);
+  });
+}
+
 var host = 'localhost';
 var port = 8080;
 
@@ -25,3 +44,9 @@ var http_serv = http.createServer(handleHTTP).listen(port, host);
 var node_static = require('node-static');
 
 var static_files = new node_static.Server(__dirname);
+
+var io = require('socket.io').listen(http_serv);
+
+io.on('connection', handleIO);
+
+let drawings = new Array();
