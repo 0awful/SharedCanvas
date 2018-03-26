@@ -112,7 +112,7 @@ function randomLetter() {
 
 let timerTemplate = 'Timer: <br>';
 let timerReady = timerTemplate + 'Ready';
-let intialTimerValue = 1;
+let intialTimerValue = 10;
 let timerRunning = false;
 
 let timer = document.getElementById('timer');
@@ -305,10 +305,7 @@ socket.on('disconnect', function() {
 
 socket.on('updateDrawings', function(drawings) {
   console.log('updateDrawings');
-  keys = Object.keys(drawings);
-  for (let i = 0; i < keys.length; i++) {
-    drawingObject[keys[i]] = drawings[keys[i]];
-  }
+  drawingObject = drawings;
   console.log('Drawing Object', drawingObject);
   render();
 });
