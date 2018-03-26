@@ -309,18 +309,3 @@ socket.on('updateDrawings', function(drawings) {
   console.log('Drawing Object', drawingObject);
   render();
 });
-
-/* REFACTOR PLAN
-CONVERT RENDER TO HANDLE SOMETHING LIKE THIS
-KEY = [DRAWING]
-DRAWING: LINE DATA point = {
-  POS: {
-    X: XPOS
-    Y: YPOS
-  },
-  DRAGGING: BOOL
-  RADIUS: FLOAT
-  COLOR: HEX
-}
-
-*/
