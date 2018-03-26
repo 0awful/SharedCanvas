@@ -18,9 +18,101 @@ tools.innerHTML = `
 
 `;
 
+function randomLetter() {
+  let letter = '';
+  switch (Math.floor(Math.random() * 26)) {
+    case 0:
+      letter = 'a';
+      break;
+    case 1:
+      letter = 'b';
+      break;
+    case 2:
+      letter = 'c';
+      break;
+    case 3:
+      letter = 'd';
+      break;
+    case 4:
+      letter = 'e';
+      break;
+    case 5:
+      letter = 'f';
+      break;
+    case 6:
+      letter = 'g';
+      break;
+    case 7:
+      letter = 'h';
+      break;
+    case 8:
+      letter = 'i';
+      break;
+    case 9:
+      letter = 'j';
+      break;
+    case 10:
+      letter = 'k';
+      break;
+    case 11:
+      letter = 'l';
+      break;
+    case 12:
+      letter = 'm';
+      break;
+    case 13:
+      letter = 'n';
+      break;
+    case 14:
+      letter = 'o';
+      break;
+    case 15:
+      letter = 'p';
+      break;
+    case 16:
+      letter = 'q';
+      break;
+    case 17:
+      letter = 'r';
+      break;
+    case 18:
+      letter = 's';
+      break;
+    case 19:
+      letter = 't';
+      break;
+    case 20:
+      letter = 'u';
+      break;
+    case 21:
+      letter = 'v';
+      break;
+    case 22:
+      letter = 'w';
+      break;
+    case 23:
+      letter = 'x';
+      break;
+    case 24:
+      letter = 'y';
+      break;
+    case 25:
+      letter = 'z';
+      break;
+    default:
+      console.error('error in randomLetterFunction');
+      break;
+  }
+  if (Math.floor(Math.random() * 2)) {
+    return letter.toUpperCase();
+  } else {
+    return letter;
+  }
+}
+
 let timerTemplate = 'Timer: <br>';
 let timerReady = timerTemplate + 'Ready';
-let intialTimerValue = 15;
+let intialTimerValue = 1;
 let timerRunning = false;
 
 let timer = document.getElementById('timer');
@@ -75,6 +167,8 @@ let clickColor = new Array();
 let initialRadius = 15;
 let radiusFalloffModifier = 0.02;
 let radiusArray = new Array();
+let drawingObject = {};
+let currentKey = '';
 
 let canvasDiv = document.getElementById('canvasContainer');
 canvas = document.createElement('canvas');
@@ -92,24 +186,29 @@ function changeColor(color) {
 }
 
 $('#canvas').mousedown(function(e) {
+  let letter = '';
+  letter = randomLetter() + randomLetter() + randomLetter() + randomLetter();
+  currentKey = letter;
+
   var mouseX = e.pageX - this.offsetLeft;
   var mouseY = e.pageY - this.offsetTop;
 
   paint = true;
-  addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
-  redraw();
+  addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, false);
+  render();
 });
 
 $('#canvas').mousemove(function(e) {
   if (paint) {
     addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, true);
-    redraw();
+    render();
   }
 });
 
 $('#canvas').mouseup(function(e) {
   paint = false;
   radius = 0;
+  console.log(drawingObject);
   startTimer(intialTimerValue);
 });
 
@@ -117,26 +216,25 @@ $('#canvas').mouseleave(function(e) {
   paint = false;
 });
 
-var clickX = new Array();
-var clickY = new Array();
-var clickDrag = new Array();
 var paint;
 
 let radius = initialRadius;
 let lastX;
 let lastY;
 
+let currentLine = new Array();
+
 function pushDrawing(drawing) {
-  clickX.push(drawing.x);
-  clickY.push(drawing.y);
-  radiusArray.push(drawing.radius);
-  clickDrag.push(drawing.dragging);
-  clickColor.push(drawing.clickColor);
+  currentLine.push(drawing);
+  drawingObject[currentKey] = currentLine;
+}
+
+function recieveDrawing(key, drawing) {
+  drawingObject[key] = drawing;
 }
 
 function emitDrawing(drawing) {
-  console.log(drawing);
-  socket.emit('drawing', drawing);
+  socket.emit('drawing', currentKey, currentLine);
 }
 
 function addClick(x, y, dragging) {
@@ -156,7 +254,7 @@ function addClick(x, y, dragging) {
     if (dragging) {
       displaceX = Math.abs(lastX - x);
       displaceY = Math.abs(lastY - y);
-      displacement = displaceX ** 2 + displaceY ** 2;
+      displacement = (displaceX ** 2 + displaceY ** 2) ** (1 / 2);
       radius = radius - radiusFalloffModifier * displacement;
     }
     lastX = x;
@@ -164,37 +262,41 @@ function addClick(x, y, dragging) {
   }
 }
 
-function redraw() {
+function render() {
+  let keys = Object.keys(drawingObject);
+  context = canvas.getContext('2d');
+
   context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
+  // pull up the line array by line
+  for (let j = 0; j < keys.length; j++) {
+    let drawingArray = drawingObject[keys[j]];
+    context.lineJoin = 'round';
 
-  context.lineJoin = 'round';
-  context.lineWidth = 5;
+    for (let i = 0; i < drawingArray.length; i++) {
+      context.beginPath();
+      if (drawingArray[i].dragging && i) {
+        context.moveTo(drawingArray[i - 1].x, drawingArray[i - 1].y);
+      } else {
+        context.moveTo(drawingArray[i].x, drawingArray[i].y);
+      }
 
-  for (var i = 0; i < clickX.length; i++) {
-    context.beginPath();
-    if (clickDrag[i] && i) {
-      context.moveTo(clickX[i - 1], clickY[i - 1]);
-    } else {
-      context.moveTo(clickX[i] - 1, clickY[i]);
+      context.lineTo(drawingArray[i].x, drawingArray[i].y);
+      context.closePath();
+      context.lineWidth = drawingArray[i].radius;
+      context.strokeStyle = drawingArray[i].clickColor;
+      context.stroke();
     }
-    context.lineTo(clickX[i], clickY[i]);
-    context.closePath();
-    context.lineWidth = radiusArray[i];
-    context.strokeStyle = clickColor[i];
-    context.stroke();
   }
 }
 
 var socket = io.connect('/');
 socket.on('connect', function() {
   console.log('Connected!');
-  console.log(socket);
 });
 
-socket.on('drawing', function(drawing) {
-  console.log(drawing);
-  pushDrawing(drawing);
-  redraw();
+socket.on('drawing', function(key, drawing) {
+  // recieveDrawing(key, drawing);
+  render();
 });
 
 socket.on('disconnect', function() {
@@ -202,8 +304,26 @@ socket.on('disconnect', function() {
 });
 
 socket.on('updateDrawings', function(drawings) {
-  for (let i = 0; i < drawings.length; i++) {
-    pushDrawing(drawings[i]);
+  console.log('updateDrawings');
+  keys = Object.keys(drawings);
+  for (let i = 0; i < keys.length; i++) {
+    drawingObject[keys[i]] = drawings[keys[i]];
   }
-  redraw();
+  console.log('Drawing Object', drawingObject);
+  render();
 });
+
+/* REFACTOR PLAN
+CONVERT RENDER TO HANDLE SOMETHING LIKE THIS
+KEY = [DRAWING]
+DRAWING: LINE DATA point = {
+  POS: {
+    X: XPOS
+    Y: YPOS
+  },
+  DRAGGING: BOOL
+  RADIUS: FLOAT
+  COLOR: HEX
+}
+
+*/

@@ -22,16 +22,18 @@ function handleHTTP(req, res) {
 function handleIO(socket) {
   function disconnect() {
     console.log('client disconnected');
+    console.log(drawings);
   }
 
   console.log('client Connected');
+
   socket.emit('updateDrawings', drawings);
   socket.on('disconnect', disconnect);
 
-  socket.on('drawing', function(drawing) {
-    drawings.push(drawing);
+  socket.on('drawing', function(key, drawing) {
+    drawings[key] = drawing;
 
-    io.sockets.emit('drawing', drawing);
+    io.sockets.emit('drawing', key, drawing);
   });
 }
 
@@ -49,4 +51,4 @@ var io = require('socket.io').listen(http_serv);
 
 io.on('connection', handleIO);
 
-let drawings = new Array();
+let drawings = {};
