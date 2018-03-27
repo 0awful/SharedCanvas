@@ -1,3 +1,19 @@
+/*
+TODO: LARGE SCALE:
+
+  refactor this disgusting speghetti code
+  replace the buttons with a color picker
+  make the timer better
+
+  codesplit, because this is gross.
+
+
+
+
+
+
+*/
+
 // create a tools object that represents the toolbar
 let tools = document.getElementById('tools');
 

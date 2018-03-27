@@ -1,5 +1,6 @@
 function handleHTTP(req, res) {
   if (req.method === 'GET') {
+    // TODO: DEFINITELY REPLACE THIS WITH AN AUTHENTICATED WAY OF DOING THIS
     if (req.url == '/resetcanvas') {
       drawings = [];
     }
@@ -22,7 +23,7 @@ function handleHTTP(req, res) {
 function handleIO(socket) {
   function disconnect() {
     console.log('client disconnected');
-    console.log(drawings);
+    // Remove this socket from the list of connected people
   }
 
   console.log('client Connected');
@@ -33,6 +34,7 @@ function handleIO(socket) {
   socket.on('drawing', function(key, drawing) {
     drawings[key] = drawing;
 
+    // TODO: This is the wrong call. I need to send to everyone who didn't already have this information.
     io.sockets.emit('drawing', key, drawing);
   });
 }
