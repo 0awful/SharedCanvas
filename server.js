@@ -23,34 +23,34 @@ function handleHTTP(req, res) {
 function handleIO(socket) {
   function disconnect() {
     console.log('client disconnected');
-    // Remove this socket from the list of connected people
+    sockets.splice(sockets.indexOf(socket), 1);
   }
 
+  sockets.push(socket);
   console.log('client Connected');
-
+  console.log(sockets.length);
   socket.emit('updateDrawings', drawings);
-  socket.on('disconnect', disconnect);
 
+  socket.on('disconnect', disconnect);
   socket.on('drawing', function(key, drawing) {
     drawings[key] = drawing;
-
-    // TODO: This is the wrong call. I need to send to everyone who didn't already have this information.
-    io.sockets.emit('drawing', key, drawing);
+    socket.broadcast.emit('drawing', key, drawing);
   });
 }
 
-var host = 'localhost';
-var port = 8080;
+let host = 'localhost';
+let port = 8080;
 
-var http = require('http');
-var http_serv = http.createServer(handleHTTP).listen(port, host);
+let http = require('http');
+let http_serv = http.createServer(handleHTTP).listen(port, host);
 
-var node_static = require('node-static');
+let node_static = require('node-static');
 
-var static_files = new node_static.Server(__dirname);
+let static_files = new node_static.Server(__dirname);
 
-var io = require('socket.io').listen(http_serv);
+let io = require('socket.io').listen(http_serv);
 
 io.on('connection', handleIO);
 
 let drawings = {};
+let sockets = new Array();

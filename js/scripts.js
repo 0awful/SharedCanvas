@@ -250,6 +250,7 @@ function recieveDrawing(key, drawing) {
 }
 
 function emitDrawing(drawing) {
+  console.log('drawingSent');
   socket.emit('drawing', currentKey, currentLine);
 }
 
@@ -311,7 +312,8 @@ socket.on('connect', function() {
 });
 
 socket.on('drawing', function(key, drawing) {
-  // recieveDrawing(key, drawing);
+  console.log('drawing recieved');
+  recieveDrawing(key, drawing);
   render();
 });
 
