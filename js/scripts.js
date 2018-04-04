@@ -14,8 +14,48 @@ TODO: LARGE SCALE:
 
 */
 
+const initialRadius = 15;
+const radiusFalloffModifier = 0.02;
+let drawingObject = {};
+let currentKey = '';
+
+let paint;
+let $;
+let radius = initialRadius;
+let lastX;
+let lastY;
+
+// let io;
+// const socket = io.connect('/');
+let currentLine = []; // eslint-disable-line prefer-const
+const timerTemplate = 'Timer: <br>';
+const timerReady = `${timerTemplate}Ready`;
+const intialTimerValue = 10;
+let timerRunning = false;
+
+const timer = document.getElementById('timer');
+timer.innerHTML = timerReady;
+
 // create a tools object that represents the toolbar
-let tools = document.getElementById('tools');
+const tools = document.getElementById('tools');
+
+// define canvas specifications
+const canvasWidth = 1000;
+const canvasHeight = 1000;
+
+// color specifications
+const colorPurple = '#cb3594';
+const colorGreen = '#659b41'; // eslint-disable-line no-unused-vars
+const colorYellow = '#ffcf33'; // eslint-disable-line no-unused-vars
+const colorBrown = '#986928'; // eslint-disable-line no-unused-vars
+const colorRed = '#ff0000'; // eslint-disable-line no-unused-vars
+const colorBlue = '#0000ff'; // eslint-disable-line no-unused-vars
+const colorOrange = '#FFA500'; // eslint-disable-line no-unused-vars
+const colorWhite = '#ffffff'; // eslint-disable-line no-unused-vars
+const colorBlack = '#000000'; // eslint-disable-line no-unused-vars
+const colorGray = '#D3D3D3'; // eslint-disable-line no-unused-vars
+
+let curColor = colorPurple;
 
 // set this object to contain some basic things
 tools.innerHTML = `
@@ -116,30 +156,20 @@ function randomLetter() {
       letter = 'z';
       break;
     default:
-      console.error('error in randomLetterFunction');
       break;
   }
   if (Math.floor(Math.random() * 2)) {
     return letter.toUpperCase();
-  } else {
-    return letter;
   }
+  return letter;
 }
-
-let timerTemplate = 'Timer: <br>';
-let timerReady = timerTemplate + 'Ready';
-let intialTimerValue = 10;
-let timerRunning = false;
-
-let timer = document.getElementById('timer');
-timer.innerHTML = timerReady;
 
 function refreshInk() {
   radius = initialRadius;
 }
 
 function updateTimer(value) {
-  if (value == 0) {
+  if (value === 0) {
     timer.innerHTML = timerReady;
     refreshInk();
   } else {
@@ -148,13 +178,14 @@ function updateTimer(value) {
 }
 
 function startTimer(value) {
-  if (timerRunning == false) {
+  let givenValue = value;
+  if (timerRunning === false) {
     timerRunning = true;
-    updateTimer(value);
-    timerInterval = setInterval(function() {
-      value--;
-      updateTimer(value);
-      if (value == 0) {
+    updateTimer(givenValue);
+    const timerInterval = setInterval(() => {
+      givenValue -= 1;
+      updateTimer(givenValue);
+      if (value === 0) {
         timerRunning = false;
         clearInterval(timerInterval);
       }
@@ -162,83 +193,25 @@ function startTimer(value) {
   }
 }
 
-// define canvas specifications
-let canvasWidth = 1000;
-let canvasHeight = 1000;
-
-// color specifications
-let colorPurple = '#cb3594';
-let colorGreen = '#659b41';
-let colorYellow = '#ffcf33';
-let colorBrown = '#986928';
-let colorRed = '#ff0000';
-let colorBlue = '#0000ff';
-let colorOrange = '#FFA500';
-let colorWhite = '#ffffff';
-let colorBlack = '#000000';
-let colorGray = '#D3D3D3';
-
-let curColor = colorPurple;
-let clickColor = new Array();
-let initialRadius = 15;
-let radiusFalloffModifier = 0.02;
-let radiusArray = new Array();
-let drawingObject = {};
-let currentKey = '';
-
-let canvasDiv = document.getElementById('canvasContainer');
-canvas = document.createElement('canvas');
+const canvasDiv = document.getElementById('canvasContainer');
+let canvas = document.createElement('canvas');
 canvas.setAttribute('width', canvasWidth);
 canvas.setAttribute('height', canvasHeight);
 canvas.setAttribute('id', 'canvas');
 canvasDiv.appendChild(canvas);
-if (typeof G_vmlCanvasManager != 'undefined') {
-  canvas = G_vmlCanvasManager.initElement(canvas);
+
+// prettier-ignore
+if (typeof G_vmlCanvasManager !== 'undefined') { // eslint-disable-line camelcase
+  canvas = G_vmlCanvasManager.initElement(canvas); // eslint-disable-line no-undef
 }
 let context = canvas.getContext('2d');
 
 function changeColor(color) {
+  // eslint-disable-line no-unused-vars
   curColor = color;
 }
 
-$('#canvas').mousedown(function(e) {
-  let letter = '';
-  letter = randomLetter() + randomLetter() + randomLetter() + randomLetter();
-  currentKey = letter;
-
-  var mouseX = e.pageX - this.offsetLeft;
-  var mouseY = e.pageY - this.offsetTop;
-
-  paint = true;
-  addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, false);
-  render();
-});
-
-$('#canvas').mousemove(function(e) {
-  if (paint) {
-    addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, true);
-    render();
-  }
-});
-
-$('#canvas').mouseup(function(e) {
-  paint = false;
-  radius = 0;
-  console.log(drawingObject);
-  startTimer(intialTimerValue);
-});
-
-$('#canvas').mouseleave(function(e) {
-  paint = false;
-});
-
-var paint;
-
-let radius = initialRadius;
-let lastX;
-let lastY;
-
-let currentLine = new Array();
+changeColor(colorPurple);
 
 function pushDrawing(drawing) {
   currentLine.push(drawing);
@@ -249,8 +222,7 @@ function recieveDrawing(key, drawing) {
   drawingObject[key] = drawing;
 }
 
-function emitDrawing(drawing) {
-  console.log('drawingSent');
+function emitDrawing() {
   socket.emit('drawing', currentKey, currentLine);
 }
 
@@ -259,20 +231,20 @@ function addClick(x, y, dragging) {
     paint = false;
     startTimer(intialTimerValue);
   } else {
-    drawing = {
-      x: x,
-      y: y,
-      radius: radius,
-      dragging: dragging,
+    const drawing = {
+      x,
+      y,
+      radius,
+      dragging,
       clickColor: curColor
     };
     pushDrawing(drawing);
     emitDrawing(drawing);
     if (dragging) {
-      displaceX = Math.abs(lastX - x);
-      displaceY = Math.abs(lastY - y);
-      displacement = (displaceX ** 2 + displaceY ** 2) ** (1 / 2);
-      radius = radius - radiusFalloffModifier * displacement;
+      const displaceX = Math.abs(lastX - x);
+      const displaceY = Math.abs(lastY - y);
+      const displacement = (displaceX ** 2 + displaceY ** 2) ** (1 / 2);
+      radius -= radiusFalloffModifier * displacement;
     }
     lastX = x;
     lastY = y;
@@ -280,16 +252,16 @@ function addClick(x, y, dragging) {
 }
 
 function render() {
-  let keys = Object.keys(drawingObject);
+  const keys = Object.keys(drawingObject);
   context = canvas.getContext('2d');
 
   context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
   // pull up the line array by line
-  for (let j = 0; j < keys.length; j++) {
-    let drawingArray = drawingObject[keys[j]];
+  for (let j = 0; j < keys.length; j += 1) {
+    const drawingArray = drawingObject[keys[j]];
     context.lineJoin = 'round';
 
-    for (let i = 0; i < drawingArray.length; i++) {
+    for (let i = 0; i < drawingArray.length; i += 1) {
       context.beginPath();
       if (drawingArray[i].dragging && i) {
         context.moveTo(drawingArray[i - 1].x, drawingArray[i - 1].y);
@@ -306,24 +278,48 @@ function render() {
   }
 }
 
-var socket = io.connect('/');
-socket.on('connect', function() {
-  console.log('Connected!');
-});
+socket.on('connect', () => {});
 
-socket.on('drawing', function(key, drawing) {
-  console.log('drawing recieved');
+socket.on('drawing', (key, drawing) => {
   recieveDrawing(key, drawing);
   render();
 });
 
-socket.on('disconnect', function() {
-  console.log('disconnected');
+socket.on('disconnect', () => {});
+
+socket.on('updateDrawings', drawings => {
+  drawingObject = drawings;
+  render();
 });
 
-socket.on('updateDrawings', function(drawings) {
-  console.log('updateDrawings');
-  drawingObject = drawings;
-  console.log('Drawing Object', drawingObject);
+$('#canvas').mousedown(e => {
+  // eslint-disable-line no-undef
+  let letter = '';
+  letter = randomLetter() + randomLetter() + randomLetter() + randomLetter();
+  currentKey = letter;
+
+  const mouseX = e.pageX - this.offsetLeft;
+  const mouseY = e.pageY - this.offsetTop;
+
+  paint = true;
+  addClick(mouseX, mouseY, false);
   render();
+});
+
+$('#canvas').mousemove(e => {
+  // eslint-disable-line no-undef
+  if (paint) {
+    addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, true);
+    render();
+  }
+});
+
+$('#canvas').mouseup(() => {
+  paint = false;
+  radius = 0;
+  startTimer(intialTimerValue);
+});
+
+$('#canvas').mouseleave(() => {
+  paint = false;
 });
