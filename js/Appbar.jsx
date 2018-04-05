@@ -2,7 +2,9 @@ import React from 'react';
 
 const Appbar = () => (
   <header>
-    <div>Some Header!</div>
+    <div>
+      <h1>Some Header!</h1>
+    </div>
   </header>
 );
 

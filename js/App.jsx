@@ -3,9 +3,10 @@ import Appbar from './Appbar';
 import Toolbar from './Toolbar';
 
 const App = () => (
-  <div className="Main">
+  <div className="App">
     <Appbar />
-    <Toolbar />s
+    <Toolbar />
+    <h1>Tthis is in app</h1>
   </div>
 );
 
