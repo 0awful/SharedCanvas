@@ -1,9 +1,10 @@
 const path = require('path');
-const webpack = require('webpack');
+const webpack = require('webpack'); // eslint-disable-line
 
 const config = {
   context: __dirname,
-  entry: ['./js/scripts.js'],
+  mode: 'development',
+  entry: ['./js/ClientApp.jsx'],
   devtool:
     process.env.NODE_ENV === 'development' ? 'cheap-eval-source-map' : false,
   output: {
@@ -12,11 +13,7 @@ const config = {
     publicPath: '/public/'
   },
   resolve: {
-    extensions: ['.js', '.jsx', '.json'],
-    alias: {
-      react: 'preact-compat',
-      'react-dom': 'preact-compat'
-    }
+    extensions: ['.js', '.jsx', '.json']
   },
   stats: {
     colors: true,
@@ -25,12 +22,12 @@ const config = {
   },
   module: {
     rules: [
-      // {
-      //   enforce: 'pre',
-      //   test: /\.jsx?$/,
-      //   loader: 'eslint-loader',
-      //   exclude: /node_modules/
-      // },
+      {
+        enforce: 'pre',
+        test: /\.jsx?$/,
+        loader: 'eslint-loader',
+        exclude: /node_modules/
+      },
       {
         test: /\.jsx?$/,
         loader: 'babel-loader',

@@ -14,6 +14,8 @@ TODO: LARGE SCALE:
 
 */
 
+import io from 'socket.io-client';
+
 const initialRadius = 15;
 const radiusFalloffModifier = 0.02;
 let drawingObject = {};
@@ -25,8 +27,7 @@ let radius = initialRadius;
 let lastX;
 let lastY;
 
-// let io;
-// const socket = io.connect('/');
+const socket = io.connect('/');
 let currentLine = []; // eslint-disable-line prefer-const
 const timerTemplate = 'Timer: <br>';
 const timerReady = `${timerTemplate}Ready`;
@@ -56,6 +57,10 @@ const colorBlack = '#000000'; // eslint-disable-line no-unused-vars
 const colorGray = '#D3D3D3'; // eslint-disable-line no-unused-vars
 
 let curColor = colorPurple;
+
+const changeColor = color => {
+  curColor = color;
+};
 
 // set this object to contain some basic things
 tools.innerHTML = `
@@ -205,11 +210,6 @@ if (typeof G_vmlCanvasManager !== 'undefined') { // eslint-disable-line camelcas
   canvas = G_vmlCanvasManager.initElement(canvas); // eslint-disable-line no-undef
 }
 let context = canvas.getContext('2d');
-
-function changeColor(color) {
-  // eslint-disable-line no-unused-vars
-  curColor = color;
-}
 
 changeColor(colorPurple);
 
