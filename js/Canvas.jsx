@@ -159,7 +159,6 @@ class Canvas extends Component {
   }
 
   componentDidUpdate() {
-    console.log('updated');
     this.drawToCanvas();
   }
 
