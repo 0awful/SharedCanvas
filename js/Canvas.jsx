@@ -191,13 +191,16 @@ class Canvas extends Component {
         const newRadius =
           this.state.radius - this.state.radiusFalloffModifier * displacement;
         this.setState({
-          radius: newRadius
+          radius: newRadius,
+          lastX: x,
+          lastY: y
+        });
+      } else {
+        this.setState({
+          lastX: x,
+          lastY: y
         });
       }
-      this.setState({
-        lastX: x,
-        lastY: y
-      });
     }
   }
 
