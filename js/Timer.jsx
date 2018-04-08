@@ -1,9 +1,26 @@
-import React from 'react';
+import React, { Component } from 'react';
+import subscribeToTimer from './sockets';
 
-const Timer = () => (
-  <div>
-    <p id="Timer">TimerValue</p>
-  </div>
-);
+class Timer extends Component {
+  constructor(...props) {
+    super(...props);
+    subscribeToTimer((err, timestamp) =>
+      this.setState({
+        timestamp
+      })
+    );
+  }
 
+  state = {
+    timestamp: 'Please Wait...'
+  };
+
+  render() {
+    return (
+      <div>
+        <p id="Timer">{this.state.timestamp}</p>
+      </div>
+    );
+  }
+}
 export default Timer;
