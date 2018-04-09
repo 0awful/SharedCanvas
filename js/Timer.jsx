@@ -1,9 +1,29 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+// import subscribeToTimer from './sockets';
 
-const Timer = () => (
+const Timer = props => (
   <div>
-    <p id="Timer">TimerValue</p>
+    <p id="Timer">{props.timerValue}</p>
   </div>
 );
 
-export default Timer;
+Timer.propTypes = {
+  timerValue: PropTypes.number
+};
+
+Timer.defaultProps = {
+  timerValue: 0
+};
+
+const mapStateToProps = state => ({
+  timerValue: state.timerValue
+});
+const mapDispatchToProps = (dispatch: Function) => ({
+  handleDrawingStateChange(event) {
+    dispatch(setDrawingState);
+  }
+});
+
+export default connect(mapStateToProps)(Timer);
