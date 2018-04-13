@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-// import {Component} from 'react'
 import Paper from 'material-ui/Paper';
 
 const paperStyle = {
@@ -257,12 +256,12 @@ class Canvas extends Component {
   }
 
   mouseUp(e) {
-    this.setState({ radius: 15, key: randomKey(), mousePressed: false });
+    this.setState({ radius: 15, mousePressed: false });
     this.passDrawingData(e, true);
   }
 
   mouseDown(e) {
-    this.setState({ mousePressed: true });
+    this.setState({ mousePressed: true, key: randomKey() });
     this.passDrawingData(e, false);
   }
 
