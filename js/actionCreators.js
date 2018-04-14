@@ -1,5 +1,7 @@
-import { SET_TIMER } from './actions';
+import { SET_TIMER_VALUE } from './actions';
 
-export default function setTimer(timerValue) {
-  return { type: SET_TIMER, payload: timerValue };
+/* eslint-disable */
+
+export function setTimerValue(timerValue) {
+  return { type: SET_TIMER_VALUE, payload: timerValue };
 }
