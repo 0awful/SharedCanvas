@@ -1,10 +1,10 @@
 // @flow
 
-import React from 'react';
+import React from "react";
 
 const toolsStyle = {
-  display: 'grid',
-  gridColumnStart: 'repeat(3, 1fr)'
+  display: "grid",
+  gridColumnStart: "repeat(3, 1fr)"
 };
 
 const Tools = () => (
