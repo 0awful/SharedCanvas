@@ -54,10 +54,15 @@ const io = require('socket.io').listen(httpServe);
 io.on('connection', handleIO);
 
 io.on('connection', client => {
-  client.on('subscribeToTimer', interval => {
+  client.on('subscribeToTimer', (interval, timerValue) => {
     console.log('client is subscribing to timer with interval ', interval);
-    setInterval(() => {
-      client.emit('timer', new Date());
+    let internalTimerValue = timerValue;
+    const timer = setInterval(() => {
+      internalTimerValue -= 1;
+      client.emit('timer', internalTimerValue);
+      if (internalTimerValue === 0) {
+        clearInterval(timer);
+      }
     }, interval);
   });
 });
