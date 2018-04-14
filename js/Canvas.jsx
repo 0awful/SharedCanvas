@@ -1,108 +1,108 @@
-import React, { Component } from 'react';
-import Paper from 'material-ui/Paper';
+import React, { Component } from "react";
+import Paper from "material-ui/Paper";
 
 const paperStyle = {
-  height: '1000px',
-  width: '1000px',
+  height: "1000px",
+  width: "1000px",
   gridRowStart: 2,
   gridColumnStart: 2
 };
 
 const gridStyle = {
-  display: 'grid',
-  width: '100%',
-  height: '100%',
-  marginTop: '5%',
-  marginBottom: '5%',
-  gridTemplateColumns: 'auto 1000px auto',
-  gridTemplateRows: 'minmax(5%, 10%) 1000px minmax(5%, 10%)'
+  display: "grid",
+  width: "100%",
+  height: "100%",
+  marginTop: "5%",
+  marginBottom: "5%",
+  gridTemplateColumns: "auto 1000px auto",
+  gridTemplateRows: "minmax(5%, 10%) 1000px minmax(5%, 10%)"
 };
 
 const canvasStyle = {
-  height: '1000px',
-  width: '1000px'
+  height: "1000px",
+  width: "1000px"
 };
 
 function randomLetter() {
-  let letter = '';
+  let letter = "";
   switch (Math.floor(Math.random() * 26)) {
     case 0:
-      letter = 'a';
+      letter = "a";
       break;
     case 1:
-      letter = 'b';
+      letter = "b";
       break;
     case 2:
-      letter = 'c';
+      letter = "c";
       break;
     case 3:
-      letter = 'd';
+      letter = "d";
       break;
     case 4:
-      letter = 'e';
+      letter = "e";
       break;
     case 5:
-      letter = 'f';
+      letter = "f";
       break;
     case 6:
-      letter = 'g';
+      letter = "g";
       break;
     case 7:
-      letter = 'h';
+      letter = "h";
       break;
     case 8:
-      letter = 'i';
+      letter = "i";
       break;
     case 9:
-      letter = 'j';
+      letter = "j";
       break;
     case 10:
-      letter = 'k';
+      letter = "k";
       break;
     case 11:
-      letter = 'l';
+      letter = "l";
       break;
     case 12:
-      letter = 'm';
+      letter = "m";
       break;
     case 13:
-      letter = 'n';
+      letter = "n";
       break;
     case 14:
-      letter = 'o';
+      letter = "o";
       break;
     case 15:
-      letter = 'p';
+      letter = "p";
       break;
     case 16:
-      letter = 'q';
+      letter = "q";
       break;
     case 17:
-      letter = 'r';
+      letter = "r";
       break;
     case 18:
-      letter = 's';
+      letter = "s";
       break;
     case 19:
-      letter = 't';
+      letter = "t";
       break;
     case 20:
-      letter = 'u';
+      letter = "u";
       break;
     case 21:
-      letter = 'v';
+      letter = "v";
       break;
     case 22:
-      letter = 'w';
+      letter = "w";
       break;
     case 23:
-      letter = 'x';
+      letter = "x";
       break;
     case 24:
-      letter = 'y';
+      letter = "y";
       break;
     case 25:
-      letter = 'z';
+      letter = "z";
       break;
     default:
       break;
@@ -147,7 +147,7 @@ class Canvas extends Component {
     mousePressed: false,
     paint: false,
     radius: 15,
-    curColor: '#000000',
+    curColor: "#000000",
     radiusFalloffModifier: 0.02,
     currentLine: [],
     drawingsObject: {}
@@ -212,14 +212,14 @@ class Canvas extends Component {
     const keys = Object.keys(this.state.drawingObject);
     const drawingsObject = this.state.drawingObject;
 
-    const context = this.canvas.current.getContext('2d');
+    const context = this.canvas.current.getContext("2d");
 
     context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
     // pull up the line array by line
     for (let j = 0; j < keys.length; j += 1) {
       const drawingArray = drawingsObject[keys[j]];
 
-      context.lineJoin = 'round';
+      context.lineJoin = "round";
 
       for (let i = 0; i < drawingArray.length; i += 1) {
         context.beginPath();
