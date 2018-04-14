@@ -1,4 +1,6 @@
-import React from 'react';
+// @flow
+
+import React from "react";
 
 const ColorPicker = () => (
   <div>

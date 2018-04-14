@@ -1,6 +1,12 @@
 import React, { Component } from 'react';
-// import {Component} from 'react'
+import { connect } from 'react-redux';
 import Paper from 'material-ui/Paper';
+import { updateKey } from '../SocketsIndex';
+import {
+  setDrawingEnabled,
+  setPainting,
+  setCurrentLine
+} from '../actionCreators';
 
 const paperStyle = {
   height: '1000px',
@@ -24,108 +30,6 @@ const canvasStyle = {
   width: '1000px'
 };
 
-function randomLetter() {
-  let letter = '';
-  switch (Math.floor(Math.random() * 26)) {
-    case 0:
-      letter = 'a';
-      break;
-    case 1:
-      letter = 'b';
-      break;
-    case 2:
-      letter = 'c';
-      break;
-    case 3:
-      letter = 'd';
-      break;
-    case 4:
-      letter = 'e';
-      break;
-    case 5:
-      letter = 'f';
-      break;
-    case 6:
-      letter = 'g';
-      break;
-    case 7:
-      letter = 'h';
-      break;
-    case 8:
-      letter = 'i';
-      break;
-    case 9:
-      letter = 'j';
-      break;
-    case 10:
-      letter = 'k';
-      break;
-    case 11:
-      letter = 'l';
-      break;
-    case 12:
-      letter = 'm';
-      break;
-    case 13:
-      letter = 'n';
-      break;
-    case 14:
-      letter = 'o';
-      break;
-    case 15:
-      letter = 'p';
-      break;
-    case 16:
-      letter = 'q';
-      break;
-    case 17:
-      letter = 'r';
-      break;
-    case 18:
-      letter = 's';
-      break;
-    case 19:
-      letter = 't';
-      break;
-    case 20:
-      letter = 'u';
-      break;
-    case 21:
-      letter = 'v';
-      break;
-    case 22:
-      letter = 'w';
-      break;
-    case 23:
-      letter = 'x';
-      break;
-    case 24:
-      letter = 'y';
-      break;
-    case 25:
-      letter = 'z';
-      break;
-    default:
-      break;
-  }
-  if (Math.floor(Math.random() * 2)) {
-    return letter.toUpperCase();
-  }
-  return letter;
-}
-
-function randomKey() {
-  const key =
-    randomLetter() +
-    randomLetter() +
-    randomLetter() +
-    randomLetter() +
-    randomLetter() +
-    randomLetter();
-
-  return key;
-}
-
 /* TODO:
   Instate a timer
   move to redux
@@ -134,8 +38,8 @@ function randomKey() {
 */
 
 class Canvas extends Component {
-  constructor(...props) {
-    super(...props);
+  constructor(props) {
+    super(props);
     this.canvas = React.createRef();
     this.mouseUp = this.mouseUp.bind(this);
     this.mouseDown = this.mouseDown.bind(this);
@@ -144,22 +48,18 @@ class Canvas extends Component {
   }
 
   state = {
-    key: randomKey(),
-    mousePressed: false,
-    paint: false,
-    radius: 15,
-    curColor: '#000000',
-    radiusFalloffModifier: 0.02,
     currentLine: [],
     drawingsObject: {}
   };
 
   componentDidMount() {
+    updateKey();
     this.drawToCanvas();
   }
 
   componentDidUpdate() {
-    this.drawToCanvas();
+    console.log(this.props); // eslint-disable-line
+    this.drawDiff();
   }
 
   /*
@@ -169,16 +69,17 @@ class Canvas extends Component {
   */
 
   addDrawing(x, y, dragging) {
-    if (this.state.radius <= 0) {
-      this.setState({ paint: false });
+    /* eslint-disable */
+    if (this.props.radius <= 1) {
+      this.props.handlePaintingStateChange(false);
+      this.props.handleDrawingStateChange(false);
+      /* eslint-enabled */
       // startTimer(intialTimerValue);
     } else {
       const drawing = {
         x,
         y,
-        radius: this.state.radius,
-        dragging,
-        clickColor: this.state.curColor
+        dragging
       };
       this.pushDrawing(drawing);
       //     emitDrawing(drawing);
@@ -188,9 +89,9 @@ class Canvas extends Component {
         const displacement = (displaceX ** 2 + displaceY ** 2) ** (1 / 2);
 
         const newRadius =
-          this.state.radius - this.state.radiusFalloffModifier * displacement;
+          this.props.radius - this.props.radiusModifier * displacement;
+        this.props.handleRadiusStateChange(newRadius);
         this.setState({
-          radius: newRadius,
           lastX: x,
           lastY: y
         });
@@ -199,6 +100,29 @@ class Canvas extends Component {
           lastX: x,
           lastY: y
         });
+      }
+    }
+  }
+
+  drawDiff() {
+    const drawingArray = this.state.currentLine;
+    const context = this.canvas.current.getContext('2d');
+    for (let j = 0; j < drawingArray.length; j += 1) {
+      context.lineJoin = 'round';
+
+      for (let i = 0; i < drawingArray.length; i += 1) {
+        context.beginPath();
+        if (drawingArray[i].dragging && i) {
+          context.moveTo(drawingArray[i - 1].x, drawingArray[i - 1].y);
+        } else {
+          context.moveTo(drawingArray[i].x, drawingArray[i].y);
+        }
+
+        context.lineTo(drawingArray[i].x, drawingArray[i].y);
+        context.closePath();
+        context.lineWidth = drawingArray[i].radius;
+        context.strokeStyle = drawingArray[i].clickColor;
+        context.stroke();
       }
     }
   }
@@ -240,10 +164,11 @@ class Canvas extends Component {
   }
 
   pushDrawing(drawing) {
-    const key = this.state.key;
+    const keyValue = this.props.keyValue; // eslint-disable-line
+    console.log(keyValue);
     const currentLine = this.state.currentLine;
     const newDrawingObject = Object.assign({}, this.state.drawingObject);
-    newDrawingObject[key] = currentLine;
+    newDrawingObject[keyValue] = currentLine;
     this.setState(prevState => ({
       currentLine: [...prevState.currentLine, drawing],
       drawingObject: newDrawingObject
@@ -257,24 +182,35 @@ class Canvas extends Component {
   }
 
   mouseUp(e) {
-    this.setState({ radius: 15, key: randomKey(), mousePressed: false });
+    console.log('mouseUP'); // eslint-disable-line
+
     this.passDrawingData(e, true);
+    this.props.handlePaintingStateChange(false);
+    this.props.handleDrawingStateChange(false);
+    this.props.handleRadiusStateChange(15);
+    updateKey();
   }
 
   mouseDown(e) {
-    this.setState({ mousePressed: true });
+    console.log('mouseDown'); // eslint-disable-line
+    this.props.handleDrawingStateChange(true); // eslint-disable-line
+    this.props.handlePaintingStateChange(true); // eslint-disable-line
+
     this.passDrawingData(e, false);
   }
 
   mouseMove(e) {
-    if (this.state.mousePressed) {
+    /* eslint-disable */
+    if (this.props.painting) {
+      /* eslint-enabled */
       this.passDrawingData(e, true);
     }
   }
 
   mouseLeave() {
-    if (this.state.mousePressed) {
-      this.setState({ mousePressed: false });
+    if (this.props.paint) {
+      this.props.handleDrawingStateChange(false);
+      this.props.handlePaintingStateChange(false);
     }
   }
   render() {
@@ -301,4 +237,29 @@ class Canvas extends Component {
   }
 }
 
-export default Canvas;
+const mapDispatchToProps = dispatch => ({
+  handleDrawingStateChange(value) {
+    dispatch(setDrawingEnabled(value));
+  },
+  handlePaintingStateChange(value) {
+    dispatch(setPainting(value));
+  },
+  handleRadiusStateChange(value) {
+    dispatch(setRadius(value));
+  },
+  handleCurrentLineChange(value) {
+    dispatch(setCurrentLine(value));
+  }
+});
+
+const mapStateToProps = state => ({
+  keyValue: state.keyValue,
+  brushColor: state.brushColor,
+  drawingEnabled: state.drawingEnabled,
+  painting: state.painting,
+  radius: state.radius,
+  radiusModifier: state.radiusModifier,
+  currentLine: state.currentLine
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Canvas);

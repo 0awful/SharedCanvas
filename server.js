@@ -10,6 +10,8 @@ const staticFiles = new nodeStatic.Server(__dirname);
 let drawings = {};
 const sockets = [];
 
+// TODO: create a unified sockets method
+
 function handleHTTP(req, res) {
   if (req.method === 'GET') {
     // TODO: DEFINITELY REPLACE THIS WITH AN AUTHENTICATED WAY OF DOING THIS
@@ -51,13 +53,20 @@ const httpServe = http.createServer(handleHTTP).listen(port, host);
 
 const io = require('socket.io').listen(httpServe);
 
+// TODO: Create a unified sockets architecture
+
 io.on('connection', handleIO);
 
 io.on('connection', client => {
-  client.on('subscribeToTimer', interval => {
+  client.on('subscribeToTimer', (interval, timerValue) => {
     console.log('client is subscribing to timer with interval ', interval);
-    setInterval(() => {
-      client.emit('timer', new Date());
+    let internalTimerValue = timerValue;
+    const timer = setInterval(() => {
+      internalTimerValue -= 1;
+      client.emit('timer', internalTimerValue);
+      if (internalTimerValue === 0) {
+        clearInterval(timer);
+      }
     }, interval);
   });
 });
