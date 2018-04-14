@@ -5,6 +5,8 @@ import { updateKey } from '../SocketsIndex';
 import {
   setDrawingEnabled,
   setPainting,
+  setRadius,
+  appendToCurrentLine,
   setCurrentLine
 } from '../actionCreators';
 
@@ -54,11 +56,13 @@ class Canvas extends Component {
 
   componentDidMount() {
     updateKey();
+    console.log(this.props);
     this.drawToCanvas();
   }
 
   componentDidUpdate() {
-    console.log(this.props); // eslint-disable-line
+    console.log('currentLine', this.props.currentLine); // eslint-disable-line
+
     this.drawDiff();
   }
 
@@ -67,19 +71,27 @@ class Canvas extends Component {
   Figure out why there is an Or statement in the code given by react-paint
   put a draw function in and somehow make it make sense within this context
   */
+  /* eslint-disable */
+  brushReset() {
+    this.props.handlePaintingStateChange(false);
+    this.props.handleDrawingStateChange(false);
+    this.props.handleRadiusStateChange(15);
+    updateKey();
+    this.props.handleCurrentLineSetState([]);
+  }
+  /* eslint-enabled */
 
   addDrawing(x, y, dragging) {
     /* eslint-disable */
     if (this.props.radius <= 1) {
-      this.props.handlePaintingStateChange(false);
-      this.props.handleDrawingStateChange(false);
-      /* eslint-enabled */
+      this.brushReset();
       // startTimer(intialTimerValue);
     } else {
       const drawing = {
         x,
         y,
-        dragging
+        dragging,
+        radius: this.props.radius
       };
       this.pushDrawing(drawing);
       //     emitDrawing(drawing);
@@ -105,7 +117,7 @@ class Canvas extends Component {
   }
 
   drawDiff() {
-    const drawingArray = this.state.currentLine;
+    const drawingArray = this.props.currentLine;
     const context = this.canvas.current.getContext('2d');
     for (let j = 0; j < drawingArray.length; j += 1) {
       context.lineJoin = 'round';
@@ -165,12 +177,13 @@ class Canvas extends Component {
 
   pushDrawing(drawing) {
     const keyValue = this.props.keyValue; // eslint-disable-line
-    console.log(keyValue);
+
+    this.props.handleCurrentLineStateChange(drawing);
     const currentLine = this.state.currentLine;
     const newDrawingObject = Object.assign({}, this.state.drawingObject);
     newDrawingObject[keyValue] = currentLine;
     this.setState(prevState => ({
-      currentLine: [...prevState.currentLine, drawing],
+      //currentLine: [...prevState.currentLine, drawing],
       drawingObject: newDrawingObject
     }));
   }
@@ -185,10 +198,7 @@ class Canvas extends Component {
     console.log('mouseUP'); // eslint-disable-line
 
     this.passDrawingData(e, true);
-    this.props.handlePaintingStateChange(false);
-    this.props.handleDrawingStateChange(false);
-    this.props.handleRadiusStateChange(15);
-    updateKey();
+    this.brushReset();
   }
 
   mouseDown(e) {
@@ -208,9 +218,12 @@ class Canvas extends Component {
   }
 
   mouseLeave() {
-    if (this.props.paint) {
-      this.props.handleDrawingStateChange(false);
+    if (this.props.painting) {
       this.props.handlePaintingStateChange(false);
+      this.props.handleDrawingStateChange(false);
+      this.props.handleRadiusStateChange(15);
+      updateKey();
+      this.props.handleCurrentLineSetState([]);
     }
   }
   render() {
@@ -247,7 +260,10 @@ const mapDispatchToProps = dispatch => ({
   handleRadiusStateChange(value) {
     dispatch(setRadius(value));
   },
-  handleCurrentLineChange(value) {
+  handleCurrentLineStateChange(value) {
+    dispatch(appendToCurrentLine(value));
+  },
+  handleCurrentLineSetState(value) {
     dispatch(setCurrentLine(value));
   }
 });

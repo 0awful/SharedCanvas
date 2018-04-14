@@ -6,6 +6,7 @@ import {
   SET_PAINTING,
   SET_RADIUS,
   SET_RADIUS_MODIFIER,
+  APPEND_TO_CURRENT_LINE,
   SET_CURRENT_LINE
 } from './actions';
 
@@ -17,8 +18,12 @@ export function setKeyValue(keyValue) {
   return { type: SET_KEY_VALUE, payload: keyValue };
 }
 
-export function setCurrentLine(lineValue) {
-  return { type: SET_CURRENT_LINE, payload: lineValue };
+export function appendToCurrentLine(lineValue) {
+  return { type: APPEND_TO_CURRENT_LINE, payload: lineValue };
+}
+
+export function setCurrentLine(value) {
+  return { type: SET_CURRENT_LINE, payload: value };
 }
 
 export function setBrushColor(brushColor) {
@@ -33,7 +38,7 @@ export function setPainting(painting) {
   return { type: SET_PAINTING, payload: painting };
 }
 
-export function setRadiusFalloff(radius) {
+export function setRadius(radius) {
   return { type: SET_RADIUS, payload: radius };
 }
 
