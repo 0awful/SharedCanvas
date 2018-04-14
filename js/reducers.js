@@ -1,15 +1,16 @@
-import { SET_TIMER } from './actions';
+import { SET_TIMER_VALUE } from './actions';
 
 const DEFAULT_STATE = {
-  timerValue: 0
+  timerValue: 15
 };
 
-const setTimer = (state, action) => Object.assign({}, state, { timerValue: action.payload });
+const setTimerValue = (state, action) =>
+  Object.assign({}, state, { timerValue: action.payload });
 
 const rootReducer = (state = DEFAULT_STATE, action) => {
   switch (action.type) {
-    case SET_TIMER:
-      return setTimer(state, action);
+    case SET_TIMER_VALUE:
+      return setTimerValue(state, action);
     default:
       return state;
   }
