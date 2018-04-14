@@ -1,6 +1,12 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Paper from 'material-ui/Paper';
-import randomKey from '../keygen';
+import { updateKey } from '../SocketsIndex';
+import {
+  setDrawingEnabled,
+  setPainting,
+  setCurrentLine
+} from '../actionCreators';
 
 const paperStyle = {
   height: '1000px',
@@ -32,8 +38,8 @@ const canvasStyle = {
 */
 
 class Canvas extends Component {
-  constructor(...props) {
-    super(...props);
+  constructor(props) {
+    super(props);
     this.canvas = React.createRef();
     this.mouseUp = this.mouseUp.bind(this);
     this.mouseDown = this.mouseDown.bind(this);
@@ -42,22 +48,17 @@ class Canvas extends Component {
   }
 
   state = {
-    key: randomKey(),
-    paint: false,
-    radius: 15,
-    curColor: '#000000',
-    radiusFalloffModifier: 0.02,
     currentLine: [],
     drawingsObject: {}
   };
 
   componentDidMount() {
+    updateKey();
     this.drawToCanvas();
   }
 
   componentDidUpdate() {
-    console.log('updating'); // eslint-disable-line
-
+    console.log(this.props); // eslint-disable-line
     this.drawDiff();
   }
 
@@ -68,16 +69,17 @@ class Canvas extends Component {
   */
 
   addDrawing(x, y, dragging) {
-    if (this.state.radius <= 1) {
-      this.setState({ paint: false });
+    /* eslint-disable */
+    if (this.props.radius <= 1) {
+      this.props.handlePaintingStateChange(false);
+      this.props.handleDrawingStateChange(false);
+      /* eslint-enabled */
       // startTimer(intialTimerValue);
     } else {
       const drawing = {
         x,
         y,
-        radius: this.state.radius,
-        dragging,
-        clickColor: this.state.curColor
+        dragging
       };
       this.pushDrawing(drawing);
       //     emitDrawing(drawing);
@@ -87,9 +89,9 @@ class Canvas extends Component {
         const displacement = (displaceX ** 2 + displaceY ** 2) ** (1 / 2);
 
         const newRadius =
-          this.state.radius - this.state.radiusFalloffModifier * displacement;
+          this.props.radius - this.props.radiusModifier * displacement;
+        this.props.handleRadiusStateChange(newRadius);
         this.setState({
-          radius: newRadius,
           lastX: x,
           lastY: y
         });
@@ -162,10 +164,11 @@ class Canvas extends Component {
   }
 
   pushDrawing(drawing) {
-    const key = this.state.key;
+    const keyValue = this.props.keyValue; // eslint-disable-line
+    console.log(keyValue);
     const currentLine = this.state.currentLine;
     const newDrawingObject = Object.assign({}, this.state.drawingObject);
-    newDrawingObject[key] = currentLine;
+    newDrawingObject[keyValue] = currentLine;
     this.setState(prevState => ({
       currentLine: [...prevState.currentLine, drawing],
       drawingObject: newDrawingObject
@@ -182,26 +185,32 @@ class Canvas extends Component {
     console.log('mouseUP'); // eslint-disable-line
 
     this.passDrawingData(e, true);
-    this.setState({ radius: 15, paint: false });
+    this.props.handlePaintingStateChange(false);
+    this.props.handleDrawingStateChange(false);
+    this.props.handleRadiusStateChange(15);
+    updateKey();
   }
 
   mouseDown(e) {
     console.log('mouseDown'); // eslint-disable-line
+    this.props.handleDrawingStateChange(true); // eslint-disable-line
+    this.props.handlePaintingStateChange(true); // eslint-disable-line
 
-    this.setState({ paint: true, key: randomKey() });
     this.passDrawingData(e, false);
   }
 
-  /* eslint-disable */
   mouseMove(e) {
-    if (this.state.paint) {
+    /* eslint-disable */
+    if (this.props.painting) {
+      /* eslint-enabled */
       this.passDrawingData(e, true);
     }
   }
 
   mouseLeave() {
-    if (this.state.paint) {
-      this.setState({ paint: false });
+    if (this.props.paint) {
+      this.props.handleDrawingStateChange(false);
+      this.props.handlePaintingStateChange(false);
     }
   }
   render() {
@@ -228,4 +237,29 @@ class Canvas extends Component {
   }
 }
 
-export default Canvas;
+const mapDispatchToProps = dispatch => ({
+  handleDrawingStateChange(value) {
+    dispatch(setDrawingEnabled(value));
+  },
+  handlePaintingStateChange(value) {
+    dispatch(setPainting(value));
+  },
+  handleRadiusStateChange(value) {
+    dispatch(setRadius(value));
+  },
+  handleCurrentLineChange(value) {
+    dispatch(setCurrentLine(value));
+  }
+});
+
+const mapStateToProps = state => ({
+  keyValue: state.keyValue,
+  brushColor: state.brushColor,
+  drawingEnabled: state.drawingEnabled,
+  painting: state.painting,
+  radius: state.radius,
+  radiusModifier: state.radiusModifier,
+  currentLine: state.currentLine
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Canvas);
