@@ -1,5 +1,5 @@
-import { setTimerValue } from './actionCreators';
-import store from './store';
+import { setTimerValue } from '../actionCreators';
+import store from '../store';
 
 const updateTimer = newValue => {
   store.dispatch(setTimerValue(newValue));

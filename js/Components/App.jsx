@@ -3,12 +3,11 @@ import { Provider } from 'react-redux';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
-import store from './store';
+import store from '../store';
 import Canvas from './Canvas';
 import Header from './Header';
 import Footer from './Footer';
-import subscribeToTimer from './sockets';
-import updateTimer from './updateTimer';
+import { subscribeToTimer, updateTimer } from '../SocketsIndex';
 
 class App extends Component {
   constructor() {

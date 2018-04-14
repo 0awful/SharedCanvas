@@ -1,27 +1,27 @@
-import React, { Component } from "react";
-import Paper from "material-ui/Paper";
-import randomKey from "./keygen";
+import React, { Component } from 'react';
+import Paper from 'material-ui/Paper';
+import randomKey from '../keygen';
 
 const paperStyle = {
-  height: "1000px",
-  width: "1000px",
+  height: '1000px',
+  width: '1000px',
   gridRowStart: 2,
   gridColumnStart: 2
 };
 
 const gridStyle = {
-  display: "grid",
-  width: "100%",
-  height: "100%",
-  marginTop: "5%",
-  marginBottom: "5%",
-  gridTemplateColumns: "auto 1000px auto",
-  gridTemplateRows: "minmax(5%, 10%) 1000px minmax(5%, 10%)"
+  display: 'grid',
+  width: '100%',
+  height: '100%',
+  marginTop: '5%',
+  marginBottom: '5%',
+  gridTemplateColumns: 'auto 1000px auto',
+  gridTemplateRows: 'minmax(5%, 10%) 1000px minmax(5%, 10%)'
 };
 
 const canvasStyle = {
-  height: "1000px",
-  width: "1000px"
+  height: '1000px',
+  width: '1000px'
 };
 
 /* TODO:
@@ -45,7 +45,7 @@ class Canvas extends Component {
     key: randomKey(),
     paint: false,
     radius: 15,
-    curColor: "#000000",
+    curColor: '#000000',
     radiusFalloffModifier: 0.02,
     currentLine: [],
     drawingsObject: {}
@@ -56,7 +56,7 @@ class Canvas extends Component {
   }
 
   componentDidUpdate() {
-    console.log("updating"); // eslint-disable-line
+    console.log('updating'); // eslint-disable-line
 
     this.drawDiff();
   }
@@ -104,9 +104,9 @@ class Canvas extends Component {
 
   drawDiff() {
     const drawingArray = this.state.currentLine;
-    const context = this.canvas.current.getContext("2d");
+    const context = this.canvas.current.getContext('2d');
     for (let j = 0; j < drawingArray.length; j += 1) {
-      context.lineJoin = "round";
+      context.lineJoin = 'round';
 
       for (let i = 0; i < drawingArray.length; i += 1) {
         context.beginPath();
@@ -135,14 +135,14 @@ class Canvas extends Component {
     const keys = Object.keys(this.state.drawingObject);
     const drawingsObject = this.state.drawingObject;
 
-    const context = this.canvas.current.getContext("2d");
+    const context = this.canvas.current.getContext('2d');
 
     context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
     // pull up the line array by line
     for (let j = 0; j < keys.length; j += 1) {
       const drawingArray = drawingsObject[keys[j]];
 
-      context.lineJoin = "round";
+      context.lineJoin = 'round';
 
       for (let i = 0; i < drawingArray.length; i += 1) {
         context.beginPath();
@@ -179,14 +179,14 @@ class Canvas extends Component {
   }
 
   mouseUp(e) {
-    console.log("mouseUP"); // eslint-disable-line
+    console.log('mouseUP'); // eslint-disable-line
 
     this.passDrawingData(e, true);
     this.setState({ radius: 15, paint: false });
   }
 
   mouseDown(e) {
-    console.log("mouseDown"); // eslint-disable-line
+    console.log('mouseDown'); // eslint-disable-line
 
     this.setState({ paint: true, key: randomKey() });
     this.passDrawingData(e, false);
