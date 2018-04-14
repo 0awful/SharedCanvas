@@ -10,6 +10,8 @@ const staticFiles = new nodeStatic.Server(__dirname);
 let drawings = {};
 const sockets = [];
 
+// TODO: create a unified sockets method
+
 function handleHTTP(req, res) {
   if (req.method === 'GET') {
     // TODO: DEFINITELY REPLACE THIS WITH AN AUTHENTICATED WAY OF DOING THIS
@@ -50,6 +52,8 @@ function handleIO(socket) {
 const httpServe = http.createServer(handleHTTP).listen(port, host);
 
 const io = require('socket.io').listen(httpServe);
+
+// TODO: Create a unified sockets architecture
 
 io.on('connection', handleIO);
 
