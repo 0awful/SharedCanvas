@@ -12,12 +12,12 @@ import {
 } from './actions';
 
 const DEFAULT_STATE = {
-  timerValue: 15,
+  timerValue: 0,
   keyValue: '',
   currentLine: [],
   drawingObject: {},
   brushColor: '#000000',
-  drawingEnabled: false,
+  drawingEnabled: true,
   painting: false,
   radius: 15,
   radiusModifier: '0.02'

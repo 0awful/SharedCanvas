@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Paper from 'material-ui/Paper';
-import { updateKey } from '../SocketsIndex';
+import { updateKey, updateTimer, emitDrawing } from '../SocketsIndex';
 import {
   setDrawingEnabled,
   setPainting,
@@ -57,6 +57,8 @@ class Canvas extends Component {
   }
 
   componentDidUpdate() {
+    console.log('updated');
+    console.log(this.props);
     this.drawDiff();
   }
 
@@ -70,8 +72,13 @@ class Canvas extends Component {
     this.props.handlePaintingStateChange(false);
     this.props.handleDrawingStateChange(false);
     this.props.handleRadiusStateChange(15);
-    updateKey();
+
     this.props.handleCurrentLineSetState([]);
+    // look into drawingEnabled check
+    if (this.props.timerValue === 0) {
+      updateKey();
+      updateTimer(15);
+    }
   }
   /* eslint-enabled */
 
@@ -79,16 +86,18 @@ class Canvas extends Component {
     /* eslint-disable */
     if (this.props.radius <= 1) {
       this.brushReset();
-      // startTimer(intialTimerValue);
     } else {
       const drawing = {
         x,
         y,
         dragging,
-        radius: this.props.radius
+        radius: this.props.radius,
+        color: this.props.brushColor
       };
       this.pushDrawing(drawing);
-      //     emitDrawing(drawing);
+      if (this.props.currentLine.length != 0) {
+        emitDrawing(this.props.keyValue, this.props.currentLine);
+      }
       if (dragging) {
         const displaceX = Math.abs(this.state.lastX - x);
         const displaceY = Math.abs(this.state.lastY - y);
@@ -110,6 +119,8 @@ class Canvas extends Component {
     }
   }
 
+  // TODO: refactor this to share a function with draw
+
   drawDiff() {
     const drawingArray = this.props.currentLine;
     const context = this.canvas.current.getContext('2d');
@@ -127,7 +138,7 @@ class Canvas extends Component {
         context.lineTo(drawingArray[i].x, drawingArray[i].y);
         context.closePath();
         context.lineWidth = drawingArray[i].radius;
-        context.strokeStyle = drawingArray[i].clickColor;
+        context.strokeStyle = drawingArray[i].color;
         context.stroke();
       }
     }
@@ -163,7 +174,7 @@ class Canvas extends Component {
         context.lineTo(drawingArray[i].x, drawingArray[i].y);
         context.closePath();
         context.lineWidth = drawingArray[i].radius;
-        context.strokeStyle = drawingArray[i].clickColor;
+        context.strokeStyle = drawingArray[i].color;
         context.stroke();
       }
     }
@@ -192,10 +203,11 @@ class Canvas extends Component {
 
   mouseDown(e) {
     console.log('mouseDown'); // eslint-disable-line
-    this.props.handleDrawingStateChange(true); // eslint-disable-line
-    this.props.handlePaintingStateChange(true); // eslint-disable-line
+    if (this.props.drawingEnabled) {
+      this.props.handlePaintingStateChange(true); // eslint-disable-line
 
-    this.passDrawingData(e, false);
+      this.passDrawingData(e, false);
+    }
   }
 
   mouseMove(e) {
@@ -208,11 +220,7 @@ class Canvas extends Component {
 
   mouseLeave() {
     if (this.props.painting) {
-      this.props.handlePaintingStateChange(false);
-      this.props.handleDrawingStateChange(false);
-      this.props.handleRadiusStateChange(15);
-      updateKey();
-      this.props.handleCurrentLineSetState([]);
+      this.brushReset();
     }
   }
   render() {
@@ -268,7 +276,8 @@ const mapStateToProps = state => ({
   radius: state.radius,
   radiusModifier: state.radiusModifier,
   currentLine: state.currentLine,
-  drawingObject: state.drawingObject
+  drawingObject: state.drawingObject,
+  timerValue: state.timerValue
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Canvas);
