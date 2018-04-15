@@ -7,6 +7,7 @@ import {
   SET_RADIUS,
   SET_RADIUS_MODIFIER,
   APPEND_TO_CURRENT_LINE,
+  APPEND_TO_DRAWING_OBJECT,
   SET_CURRENT_LINE
 } from './actions';
 
@@ -20,6 +21,12 @@ export function setKeyValue(keyValue) {
 
 export function appendToCurrentLine(lineValue) {
   return { type: APPEND_TO_CURRENT_LINE, payload: lineValue };
+}
+export function appendToDrawingObject(key, value) {
+  return {
+    type: APPEND_TO_DRAWING_OBJECT,
+    payload: { key, value }
+  };
 }
 
 export function setCurrentLine(value) {

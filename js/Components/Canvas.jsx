@@ -7,7 +7,8 @@ import {
   setPainting,
   setRadius,
   appendToCurrentLine,
-  setCurrentLine
+  setCurrentLine,
+  appendToDrawingObject
 } from '../actionCreators';
 
 const paperStyle = {
@@ -49,11 +50,6 @@ class Canvas extends Component {
     this.mouseLeave = this.mouseLeave.bind(this);
   }
 
-  state = {
-    currentLine: [],
-    drawingsObject: {}
-  };
-
   componentDidMount() {
     updateKey();
     console.log(this.props);
@@ -61,8 +57,6 @@ class Canvas extends Component {
   }
 
   componentDidUpdate() {
-    console.log('currentLine', this.props.currentLine); // eslint-disable-line
-
     this.drawDiff();
   }
 
@@ -141,13 +135,13 @@ class Canvas extends Component {
 
   drawToCanvas() {
     if (
-      this.state.drawingObject === undefined ||
-      this.state.drawingObject === null
+      this.props.drawingObject === undefined ||
+      this.props.drawingObject === null
     ) {
       return;
     }
-    const keys = Object.keys(this.state.drawingObject);
-    const drawingsObject = this.state.drawingObject;
+    const keys = Object.keys(this.props.drawingObject);
+    const drawingsObject = this.props.drawingObject;
 
     const context = this.canvas.current.getContext('2d');
 
@@ -176,16 +170,11 @@ class Canvas extends Component {
   }
 
   pushDrawing(drawing) {
-    const keyValue = this.props.keyValue; // eslint-disable-line
-
     this.props.handleCurrentLineStateChange(drawing);
-    const currentLine = this.state.currentLine;
-    const newDrawingObject = Object.assign({}, this.state.drawingObject);
-    newDrawingObject[keyValue] = currentLine;
-    this.setState(prevState => ({
-      //currentLine: [...prevState.currentLine, drawing],
-      drawingObject: newDrawingObject
-    }));
+    this.props.handleAppendDrawingObject(
+      this.props.keyValue,
+      this.props.currentLine
+    );
   }
 
   passDrawingData(e, dragging) {
@@ -265,6 +254,9 @@ const mapDispatchToProps = dispatch => ({
   },
   handleCurrentLineSetState(value) {
     dispatch(setCurrentLine(value));
+  },
+  handleAppendDrawingObject(key, value) {
+    dispatch(appendToDrawingObject(key, value));
   }
 });
 
@@ -275,7 +267,8 @@ const mapStateToProps = state => ({
   painting: state.painting,
   radius: state.radius,
   radiusModifier: state.radiusModifier,
-  currentLine: state.currentLine
+  currentLine: state.currentLine,
+  drawingObject: state.drawingObject
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Canvas);
