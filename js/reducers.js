@@ -6,15 +6,20 @@ import {
   SET_PAINTING,
   SET_RADIUS,
   SET_RADIUS_MODIFIER,
+  APPEND_TO_DRAWING_OBJECT,
+  APPEND_TO_CURRENT_LINE,
   SET_CURRENT_LINE
 } from './actions';
 
 const DEFAULT_STATE = {
-  timerValue: 15,
+  timerValue: 0,
   keyValue: '',
+  currentLine: [],
+  drawingObject: {},
   brushColor: '#000000',
-  drawingEnabled: false,
+  drawingEnabled: true,
   painting: false,
+  radius: 15,
   radiusModifier: '0.02'
 };
 
@@ -33,15 +38,30 @@ const setDrawingEnabled = (state, action) =>
 const setPainting = (state, action) =>
   Object.assign({}, state, { painting: action.payload });
 
-const setRadiusModifier = (state, action) => {
+const setRadiusModifier = (state, action) =>
   Object.assign({}, state, { radiusModifier: action.payload });
-};
-const setRadius = (state, action) => {
+
+const setRadius = (state, action) =>
   Object.assign({}, state, { radius: action.payload });
+
+const appendToCurrentLine = (state, action) => {
+  const newArray = state.currentLine.slice();
+  newArray.push(action.payload);
+  return Object.assign({}, state, {
+    currentLine: newArray
+  });
 };
-const setCurrentLine = (state, action) => {
-  Object.assign({}, state, { radius: action.payload });
+const appendToDrawingObject = (state, action) => {
+  const newDrawingObject = Object.assign({}, state.drawingObject);
+
+  newDrawingObject[action.payload.key] = action.payload.value;
+  return Object.assign({}, state, {
+    drawingObject: newDrawingObject
+  });
 };
+
+const setCurrentLine = (state, action) =>
+  Object.assign({}, state, { currentLine: action.payload });
 
 const rootReducer = (state = DEFAULT_STATE, action) => {
   switch (action.type) {
@@ -55,10 +75,14 @@ const rootReducer = (state = DEFAULT_STATE, action) => {
       return setDrawingEnabled(state, action);
     case SET_PAINTING:
       return setPainting(state, action);
-    case SET_RADIUS_MODIFIER:
-      return setRadiusModifier(state, action);
     case SET_RADIUS:
       return setRadius(state, action);
+    case SET_RADIUS_MODIFIER:
+      return setRadiusModifier(state, action);
+    case APPEND_TO_CURRENT_LINE:
+      return appendToCurrentLine(state, action);
+    case APPEND_TO_DRAWING_OBJECT:
+      return appendToDrawingObject(state, action);
     case SET_CURRENT_LINE:
       return setCurrentLine(state, action);
     default:

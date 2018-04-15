@@ -1,83 +1,83 @@
 function randomLetter() {
-  let letter = "";
+  let letter = '';
   switch (Math.floor(Math.random() * 26)) {
     case 0:
-      letter = "a";
+      letter = 'a';
       break;
     case 1:
-      letter = "b";
+      letter = 'b';
       break;
     case 2:
-      letter = "c";
+      letter = 'c';
       break;
     case 3:
-      letter = "d";
+      letter = 'd';
       break;
     case 4:
-      letter = "e";
+      letter = 'e';
       break;
     case 5:
-      letter = "f";
+      letter = 'f';
       break;
     case 6:
-      letter = "g";
+      letter = 'g';
       break;
     case 7:
-      letter = "h";
+      letter = 'h';
       break;
     case 8:
-      letter = "i";
+      letter = 'i';
       break;
     case 9:
-      letter = "j";
+      letter = 'j';
       break;
     case 10:
-      letter = "k";
+      letter = 'k';
       break;
     case 11:
-      letter = "l";
+      letter = 'l';
       break;
     case 12:
-      letter = "m";
+      letter = 'm';
       break;
     case 13:
-      letter = "n";
+      letter = 'n';
       break;
     case 14:
-      letter = "o";
+      letter = 'o';
       break;
     case 15:
-      letter = "p";
+      letter = 'p';
       break;
     case 16:
-      letter = "q";
+      letter = 'q';
       break;
     case 17:
-      letter = "r";
+      letter = 'r';
       break;
     case 18:
-      letter = "s";
+      letter = 's';
       break;
     case 19:
-      letter = "t";
+      letter = 't';
       break;
     case 20:
-      letter = "u";
+      letter = 'u';
       break;
     case 21:
-      letter = "v";
+      letter = 'v';
       break;
     case 22:
-      letter = "w";
+      letter = 'w';
       break;
     case 23:
-      letter = "x";
+      letter = 'x';
       break;
     case 24:
-      letter = "y";
+      letter = 'y';
       break;
     case 25:
-      letter = "z";
+      letter = 'z';
       break;
     default:
       break;
@@ -100,4 +100,4 @@ function randomKey() {
   return key;
 }
 
-export default randomKey;
+module.exports.randomKey = randomKey;

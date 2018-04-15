@@ -1,7 +1,7 @@
-import subscribeToTimer from './Sockets/sockets';
 import updateTimer from './Sockets/updateTimer';
 import updateKey from './Sockets/fetchKey';
+import { emitDrawing } from './Sockets/sockets';
 
-export { subscribeToTimer };
 export { updateTimer };
 export { updateKey };
+export { emitDrawing };

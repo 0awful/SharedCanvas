@@ -1,3 +1,5 @@
+const keygen = require('./keygen.js');
+
 const host = 'localhost';
 const port = 9000;
 
@@ -44,6 +46,7 @@ function handleIO(socket) {
 
   socket.on('disconnect', disconnect);
   socket.on('drawing', (key, drawing) => {
+    console.log(key, drawing);
     drawings[key] = drawing;
     socket.broadcast.emit('drawing', key, drawing);
   });
@@ -68,5 +71,11 @@ io.on('connection', client => {
         clearInterval(timer);
       }
     }, interval);
+  });
+  client.on('requestKey', () => {
+    console.log('client is requesting a key');
+    const key = keygen.randomKey();
+    console.log('serving key: ', key);
+    client.emit('key', key);
   });
 });
