@@ -8,11 +8,9 @@ function subscribeToTimer(timerDuration, cb) {
 }
 
 function requestKey() {
-  console.log('request key called');
   socket.emit('requestKey');
 
   const keyPromise = new Promise(resolve => {
-    console.log('in promise body');
     socket.on('key', key => resolve(key));
   });
   return keyPromise;
