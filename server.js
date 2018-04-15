@@ -36,6 +36,10 @@ function handleHTTP(req, res) {
   }
 }
 
+const httpServe = http.createServer(handleHTTP).listen(port, host);
+
+const io = require('socket.io').listen(httpServe);
+
 function handleIO(socket) {
   function disconnect() {
     sockets.splice(sockets.indexOf(socket), 1);
@@ -51,10 +55,6 @@ function handleIO(socket) {
     socket.broadcast.emit('drawing', key, drawing);
   });
 }
-
-const httpServe = http.createServer(handleHTTP).listen(port, host);
-
-const io = require('socket.io').listen(httpServe);
 
 // TODO: Create a unified sockets architecture
 
