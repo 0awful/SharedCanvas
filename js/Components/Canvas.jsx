@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Paper from 'material-ui/Paper';
-import { updateKey, updateTimer, emitDrawing } from '../SocketsIndex';
+import {
+  updateKey,
+  updateTimer,
+  emitDrawing,
+  openConnection
+} from '../SocketsIndex';
 import {
   setDrawingEnabled,
   setPainting,
@@ -52,6 +57,7 @@ class Canvas extends Component {
 
   componentDidMount() {
     updateKey();
+    openConnection();
     console.log(this.props);
     this.drawToCanvas();
   }
@@ -59,7 +65,7 @@ class Canvas extends Component {
   componentDidUpdate() {
     console.log('updated');
     console.log(this.props);
-    this.drawDiff();
+    this.drawToCanvas();
   }
 
   /*

@@ -6,7 +6,8 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import store from '../store';
 import Canvas from './Canvas';
 import Header from './Header';
-import Footer from './Footer';
+import Timer from './Timer';
+import ColorPicker from './ColorPicker';
 
 const App = () => (
   <MuiThemeProvider muiTheme={getMuiTheme(lightBaseTheme)}>
@@ -14,8 +15,8 @@ const App = () => (
       <div className="App">
         <Header />
         <Canvas />
-
-        <Footer />
+        <ColorPicker />
+        <Timer />
       </div>
     </Provider>
   </MuiThemeProvider>
