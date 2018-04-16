@@ -53,7 +53,9 @@ const ColorPicker = (props: {
       zDepth={4}
       circle
     >
-      <p style={pickerStyle}>{selectorText}</p>
+      <p style={pickerStyle} className="unselectable">
+        {selectorText}
+      </p>
     </Paper>
   );
 };

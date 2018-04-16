@@ -35,7 +35,7 @@ const Timer = (props: { timerValue: number, painting: boolean }) => {
 
   return (
     <Paper id="Timer" style={timerStyle} zDepth={4} circle>
-      <p id="TimerValue" style={pStyle}>
+      <p id="TimerValue" style={pStyle} className="unselectable">
         {displayValue}
       </p>
     </Paper>
