@@ -27,8 +27,6 @@ const gridStyle = {
   display: 'grid',
   width: '100%',
   height: '100%',
-  marginTop: '5%',
-  marginBottom: '5%',
   gridTemplateColumns: 'auto 1000px auto',
   gridTemplateRows: 'minmax(5%, 10%) 1000px minmax(5%, 10%)'
 };
@@ -83,7 +81,7 @@ class Canvas extends Component {
     // look into drawingEnabled check
     if (this.props.timerValue === 0) {
       updateKey();
-      updateTimer(15);
+      updateTimer(5);
     }
   }
   /* eslint-enabled */
@@ -163,6 +161,7 @@ class Canvas extends Component {
     const context = this.canvas.current.getContext('2d');
 
     context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
+
     // pull up the line array by line
     for (let j = 0; j < keys.length; j += 1) {
       const drawingArray = drawingsObject[keys[j]];
@@ -201,10 +200,10 @@ class Canvas extends Component {
   }
 
   mouseUp(e) {
-    console.log('mouseUP'); // eslint-disable-line
-
-    this.passDrawingData(e, true);
-    this.brushReset();
+    if (this.props.painting) {
+      this.passDrawingData(e, true);
+      this.brushReset();
+    }
   }
 
   mouseDown(e) {
