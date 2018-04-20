@@ -13,7 +13,9 @@ import {
   setRadius,
   appendToCurrentLine,
   setCurrentLine,
-  appendToDrawingObject
+  appendToDrawingObject,
+  appendToEndOfLineWithKey,
+  removeLineWithKey
 } from '../actionCreators';
 
 const paperStyle = {
@@ -35,13 +37,6 @@ const canvasStyle = {
   height: '1000px',
   width: '1000px'
 };
-
-/* TODO:
-  Instate a timer
-  move to redux
-  handle performance problems
-  fix weird render bug where occasionally the end of lines when the line ends with a small radius, will not render
-*/
 
 class Canvas extends Component {
   constructor(props) {
@@ -73,10 +68,10 @@ class Canvas extends Component {
   */
   /* eslint-disable */
   brushReset() {
+    this.appendStopCode();
     this.props.handlePaintingStateChange(false);
     this.props.handleDrawingStateChange(false);
     this.props.handleRadiusStateChange(15);
-
     this.props.handleCurrentLineSetState([]);
     // look into drawingEnabled check
     if (this.props.timerValue === 0) {
@@ -84,6 +79,17 @@ class Canvas extends Component {
       updateTimer(5);
     }
   }
+
+  removeKeys(keys) {
+    for (let i = 0; i < keys.length; i++) {
+      this.props.handleKeyRemoval(keys[i]);
+    }
+  }
+
+  appendStopCode() {
+    this.pushDrawing(false);
+  }
+
   /* eslint-enabled */
 
   addDrawing(x, y, dragging) {
@@ -99,9 +105,7 @@ class Canvas extends Component {
         color: this.props.brushColor
       };
       this.pushDrawing(drawing);
-      if (this.props.currentLine.length != 0) {
-        emitDrawing(this.props.keyValue, this.props.currentLine);
-      }
+
       if (dragging) {
         const displaceX = Math.abs(this.state.lastX - x);
         const displaceY = Math.abs(this.state.lastY - y);
@@ -123,26 +127,24 @@ class Canvas extends Component {
     }
   }
 
-  // TODO: refactor this to share a function with draw
-
-  drawDiff() {
-    const drawingArray = this.props.currentLine;
+  drawThisArray(array) {
     const context = this.canvas.current.getContext('2d');
-    for (let j = 0; j < drawingArray.length; j += 1) {
+    for (let j = 0; j < array.length; j += 1) {
+      context.lineCap = 'round';
       context.lineJoin = 'round';
 
-      for (let i = 0; i < drawingArray.length; i += 1) {
+      for (let i = 0; i < array.length; i += 1) {
         context.beginPath();
-        if (drawingArray[i].dragging && i) {
-          context.moveTo(drawingArray[i - 1].x, drawingArray[i - 1].y);
+        if (array[i].dragging && i) {
+          context.moveTo(array[i - 1].x, array[i - 1].y);
         } else {
-          context.moveTo(drawingArray[i].x, drawingArray[i].y);
+          context.moveTo(array[i].x, array[i].y);
         }
 
-        context.lineTo(drawingArray[i].x, drawingArray[i].y);
+        context.lineTo(array[i].x, array[i].y);
         context.closePath();
-        context.lineWidth = drawingArray[i].radius;
-        context.strokeStyle = drawingArray[i].color;
+        context.lineWidth = array[i].radius;
+        context.strokeStyle = array[i].color;
         context.stroke();
       }
     }
@@ -160,37 +162,25 @@ class Canvas extends Component {
 
     const context = this.canvas.current.getContext('2d');
 
-    context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
-
+    let removable = [];
     // pull up the line array by line
-    for (let j = 0; j < keys.length; j += 1) {
-      const drawingArray = drawingsObject[keys[j]];
-
-      context.lineJoin = 'round';
-
-      for (let i = 0; i < drawingArray.length; i += 1) {
-        context.beginPath();
-        if (drawingArray[i].dragging && i) {
-          context.moveTo(drawingArray[i - 1].x, drawingArray[i - 1].y);
-        } else {
-          context.moveTo(drawingArray[i].x, drawingArray[i].y);
-        }
-
-        context.lineTo(drawingArray[i].x, drawingArray[i].y);
-        context.closePath();
-        context.lineWidth = drawingArray[i].radius;
-        context.strokeStyle = drawingArray[i].color;
-        context.stroke();
+    for (let i = 0; i < keys.length; i += 1) {
+      const drawingArray = drawingsObject[keys[i]];
+      if (!drawingArray[drawingArray.length - 1]) {
+        removable.push(keys[i]);
       }
+      // then draws it
+      this.drawThisArray(drawingArray);
     }
+
+    this.removeKeys(removable);
   }
 
   pushDrawing(drawing) {
     this.props.handleCurrentLineStateChange(drawing);
-    this.props.handleAppendDrawingObject(
-      this.props.keyValue,
-      this.props.currentLine
-    );
+    this.props.handleAppendToEndOfKey(this.props.keyValue, drawing);
+
+    emitDrawing(this.props.keyValue, drawing);
   }
 
   passDrawingData(e, dragging) {
@@ -207,7 +197,6 @@ class Canvas extends Component {
   }
 
   mouseDown(e) {
-    console.log('mouseDown'); // eslint-disable-line
     if (this.props.drawingEnabled) {
       this.props.handlePaintingStateChange(true); // eslint-disable-line
 
@@ -270,6 +259,12 @@ const mapDispatchToProps = dispatch => ({
   },
   handleAppendDrawingObject(key, value) {
     dispatch(appendToDrawingObject(key, value));
+  },
+  handleAppendToEndOfKey(key, value) {
+    dispatch(appendToEndOfLineWithKey(key, value));
+  },
+  handleKeyRemoval(key) {
+    dispatch(removeLineWithKey(key));
   }
 });
 
