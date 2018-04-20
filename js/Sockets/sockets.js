@@ -16,8 +16,8 @@ function requestKey() {
   return keyPromise;
 }
 
-function emitDrawing(key, line) {
-  socket.emit('drawing', key, line);
+function emitDrawing(key, drawing) {
+  socket.emit('drawing', key, drawing);
 }
 
 const connect = (updateDrawingsCB, newDrawingCB) => {
