@@ -61,11 +61,6 @@ class Canvas extends Component {
     this.drawToCanvas();
   }
 
-  /*
-  TODO:
-  Figure out why there is an Or statement in the code given by react-paint
-  put a draw function in and somehow make it make sense within this context
-  */
   /* eslint-disable */
   brushReset() {
     this.appendStopCode();
@@ -73,7 +68,7 @@ class Canvas extends Component {
     this.props.handleDrawingStateChange(false);
     this.props.handleRadiusStateChange(15);
     this.props.handleCurrentLineSetState([]);
-    // look into drawingEnabled check
+
     if (this.props.timerValue === 0) {
       updateKey();
       updateTimer(5);

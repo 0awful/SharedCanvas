@@ -261,11 +261,6 @@ var Canvas = function (_Component) {
     this.drawToCanvas();
   };
 
-  /*
-  TODO:
-  Figure out why there is an Or statement in the code given by react-paint
-  put a draw function in and somehow make it make sense within this context
-  */
   /* eslint-disable */
 
 
@@ -275,7 +270,7 @@ var Canvas = function (_Component) {
     this.props.handleDrawingStateChange(false);
     this.props.handleRadiusStateChange(15);
     this.props.handleCurrentLineSetState([]);
-    // look into drawingEnabled check
+
     if (this.props.timerValue === 0) {
       Object(_SocketsIndex__WEBPACK_IMPORTED_MODULE_3__["updateKey"])();
       Object(_SocketsIndex__WEBPACK_IMPORTED_MODULE_3__["updateTimer"])(5);
@@ -537,22 +532,21 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var colorPickerStyle = {
-  // left: 0,
-  // top: 0,
+  left: 0,
+  bottom: 0,
   backgroundColor: 'rgb(0,188,212)',
-  // position: 'fixed',
+  position: 'fixed',
   height: 100,
   width: 100,
   margin: 20,
   textAlign: 'center',
   display: 'grid',
-  gridRowStart: 1,
   gridTemplateRows: 'repeat(3,1fr)',
   gridTemplateColumns: '10% auto 10%'
 };
 
 var pickerStyle = {
-  position: 'relative',
+  gridColumnStart: 2,
   gridRowStart: 2,
   fontSize: '20px'
 };
@@ -571,28 +565,18 @@ var ColorPicker = function ColorPicker(props) {
 
   var selectorText = '';
   if (props.brushColor === props.brushColorDefault) {
-    selectorText = 'Click the circle!';
+    selectorText = 'Click Me!';
   }
   colorPickerStyle.backgroundColor = props.brushColor;
   return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(
-    'div',
+    material_ui_Paper__WEBPACK_IMPORTED_MODULE_2___default.a,
     {
-      style: {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        display: 'grid',
-        gridTemplateColumns: 1,
-        gridTemplateRows: 2
-      }
-    },
-    react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(material_ui_Paper__WEBPACK_IMPORTED_MODULE_2___default.a, {
       onClick: clickFunction,
       id: 'ColorPickerBody',
       style: colorPickerStyle,
       zDepth: 4,
       circle: true
-    }),
+    },
     react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(
       'p',
       { style: pickerStyle, className: 'unselectable' },
