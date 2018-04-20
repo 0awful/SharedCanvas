@@ -49,33 +49,39 @@ function handleIO(socket) {
   socket.emit('updateDrawings', drawings);
 
   socket.on('disconnect', disconnect);
+
   socket.on('drawing', (key, drawing) => {
     console.log(key, drawing);
-    drawings[key] = drawing;
+    if (drawings[key]) {
+      const array = drawings[key];
+      array.push(drawing);
+      drawings[key] = array;
+    } else {
+      drawings[key] = [drawing];
+    }
     socket.broadcast.emit('drawing', key, drawing);
+  });
+
+  socket.on('subscribeToTimer', (interval, timerValue) => {
+    console.log('client is subscribing to timer with interval ', interval);
+    let internalTimerValue = timerValue;
+    const timer = setInterval(() => {
+      internalTimerValue -= 1;
+      socket.emit('timer', internalTimerValue);
+      if (internalTimerValue === 0) {
+        clearInterval(timer);
+      }
+    }, interval);
+  });
+
+  socket.on('requestKey', () => {
+    console.log('client is requesting a key');
+    const key = keygen.randomKey();
+    console.log('serving key: ', key);
+    socket.emit('key', key);
   });
 }
 
 // TODO: Create a unified sockets architecture
 
 io.on('connection', handleIO);
-
-io.on('connection', client => {
-  client.on('subscribeToTimer', (interval, timerValue) => {
-    console.log('client is subscribing to timer with interval ', interval);
-    let internalTimerValue = timerValue;
-    const timer = setInterval(() => {
-      internalTimerValue -= 1;
-      client.emit('timer', internalTimerValue);
-      if (internalTimerValue === 0) {
-        clearInterval(timer);
-      }
-    }, interval);
-  });
-  client.on('requestKey', () => {
-    console.log('client is requesting a key');
-    const key = keygen.randomKey();
-    console.log('serving key: ', key);
-    client.emit('key', key);
-  });
-});

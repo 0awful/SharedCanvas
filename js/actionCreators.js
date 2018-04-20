@@ -8,8 +8,10 @@ import {
   SET_RADIUS_MODIFIER,
   APPEND_TO_CURRENT_LINE,
   APPEND_TO_DRAWING_OBJECT,
+  APPEND_TO_END_OF_LINE_WITH_KEY,
   SET_CURRENT_LINE,
-  NEW_DRAWING_OBJECT
+  NEW_DRAWING_OBJECT,
+  REMOVE_LINE_WITH_KEY
 } from './actions';
 
 export function setTimerValue(timerValue) {
@@ -27,6 +29,20 @@ export function appendToCurrentLine(lineValue) {
 export function appendToDrawingObject(key, value) {
   return {
     type: APPEND_TO_DRAWING_OBJECT,
+    payload: { key, value }
+  };
+}
+
+export function removeLineWithKey(key) {
+  return {
+    type: REMOVE_LINE_WITH_KEY,
+    payload: key
+  };
+}
+
+export function appendToEndOfLineWithKey(key, value) {
+  return {
+    type: APPEND_TO_END_OF_LINE_WITH_KEY,
     payload: { key, value }
   };
 }

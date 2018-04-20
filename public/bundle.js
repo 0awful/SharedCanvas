@@ -232,13 +232,6 @@ var canvasStyle = {
   width: '1000px'
 };
 
-/* TODO:
-  Instate a timer
-  move to redux
-  handle performance problems
-  fix weird render bug where occasionally the end of lines when the line ends with a small radius, will not render
-*/
-
 var Canvas = function (_Component) {
   _inherits(Canvas, _Component);
 
@@ -277,10 +270,10 @@ var Canvas = function (_Component) {
 
 
   Canvas.prototype.brushReset = function brushReset() {
+    this.appendStopCode();
     this.props.handlePaintingStateChange(false);
     this.props.handleDrawingStateChange(false);
     this.props.handleRadiusStateChange(15);
-
     this.props.handleCurrentLineSetState([]);
     // look into drawingEnabled check
     if (this.props.timerValue === 0) {
@@ -288,6 +281,17 @@ var Canvas = function (_Component) {
       Object(_SocketsIndex__WEBPACK_IMPORTED_MODULE_3__["updateTimer"])(5);
     }
   };
+
+  Canvas.prototype.removeKeys = function removeKeys(keys) {
+    for (var i = 0; i < keys.length; i++) {
+      this.props.handleKeyRemoval(keys[i]);
+    }
+  };
+
+  Canvas.prototype.appendStopCode = function appendStopCode() {
+    this.pushDrawing(false);
+  };
+
   /* eslint-enabled */
 
   Canvas.prototype.addDrawing = function addDrawing(x, y, dragging) {
@@ -303,9 +307,7 @@ var Canvas = function (_Component) {
         color: this.props.brushColor
       };
       this.pushDrawing(drawing);
-      if (this.props.currentLine.length != 0) {
-        Object(_SocketsIndex__WEBPACK_IMPORTED_MODULE_3__["emitDrawing"])(this.props.keyValue, this.props.currentLine);
-      }
+
       if (dragging) {
         var displaceX = Math.abs(this.state.lastX - x);
         var displaceY = Math.abs(this.state.lastY - y);
@@ -326,26 +328,24 @@ var Canvas = function (_Component) {
     }
   };
 
-  // TODO: refactor this to share a function with draw
-
-  Canvas.prototype.drawDiff = function drawDiff() {
-    var drawingArray = this.props.currentLine;
+  Canvas.prototype.drawThisArray = function drawThisArray(array) {
     var context = this.canvas.current.getContext('2d');
-    for (var j = 0; j < drawingArray.length; j += 1) {
+    for (var j = 0; j < array.length; j += 1) {
+      context.lineCap = 'round';
       context.lineJoin = 'round';
 
-      for (var i = 0; i < drawingArray.length; i += 1) {
+      for (var i = 0; i < array.length; i += 1) {
         context.beginPath();
-        if (drawingArray[i].dragging && i) {
-          context.moveTo(drawingArray[i - 1].x, drawingArray[i - 1].y);
+        if (array[i].dragging && i) {
+          context.moveTo(array[i - 1].x, array[i - 1].y);
         } else {
-          context.moveTo(drawingArray[i].x, drawingArray[i].y);
+          context.moveTo(array[i].x, array[i].y);
         }
 
-        context.lineTo(drawingArray[i].x, drawingArray[i].y);
+        context.lineTo(array[i].x, array[i].y);
         context.closePath();
-        context.lineWidth = drawingArray[i].radius;
-        context.strokeStyle = drawingArray[i].color;
+        context.lineWidth = array[i].radius;
+        context.strokeStyle = array[i].color;
         context.stroke();
       }
     }
@@ -360,34 +360,25 @@ var Canvas = function (_Component) {
 
     var context = this.canvas.current.getContext('2d');
 
-    context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
-
+    var removable = [];
     // pull up the line array by line
-    for (var j = 0; j < keys.length; j += 1) {
-      var drawingArray = drawingsObject[keys[j]];
-
-      context.lineJoin = 'round';
-
-      for (var i = 0; i < drawingArray.length; i += 1) {
-        context.beginPath();
-        if (drawingArray[i].dragging && i) {
-          context.moveTo(drawingArray[i - 1].x, drawingArray[i - 1].y);
-        } else {
-          context.moveTo(drawingArray[i].x, drawingArray[i].y);
-        }
-
-        context.lineTo(drawingArray[i].x, drawingArray[i].y);
-        context.closePath();
-        context.lineWidth = drawingArray[i].radius;
-        context.strokeStyle = drawingArray[i].color;
-        context.stroke();
+    for (var i = 0; i < keys.length; i += 1) {
+      var drawingArray = drawingsObject[keys[i]];
+      if (!drawingArray[drawingArray.length - 1]) {
+        removable.push(keys[i]);
       }
+      // then draws it
+      this.drawThisArray(drawingArray);
     }
+
+    this.removeKeys(removable);
   };
 
   Canvas.prototype.pushDrawing = function pushDrawing(drawing) {
     this.props.handleCurrentLineStateChange(drawing);
-    this.props.handleAppendDrawingObject(this.props.keyValue, this.props.currentLine);
+    this.props.handleAppendToEndOfKey(this.props.keyValue, drawing);
+
+    Object(_SocketsIndex__WEBPACK_IMPORTED_MODULE_3__["emitDrawing"])(this.props.keyValue, drawing);
   };
 
   Canvas.prototype.passDrawingData = function passDrawingData(e, dragging) {
@@ -404,7 +395,6 @@ var Canvas = function (_Component) {
   };
 
   Canvas.prototype.mouseDown = function mouseDown(e) {
-    console.log('mouseDown'); // eslint-disable-line
     if (this.props.drawingEnabled) {
       this.props.handlePaintingStateChange(true); // eslint-disable-line
 
@@ -473,6 +463,12 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
     },
     handleAppendDrawingObject: function handleAppendDrawingObject(key, value) {
       dispatch(Object(_actionCreators__WEBPACK_IMPORTED_MODULE_4__["appendToDrawingObject"])(key, value));
+    },
+    handleAppendToEndOfKey: function handleAppendToEndOfKey(key, value) {
+      dispatch(Object(_actionCreators__WEBPACK_IMPORTED_MODULE_4__["appendToEndOfLineWithKey"])(key, value));
+    },
+    handleKeyRemoval: function handleKeyRemoval(key) {
+      dispatch(Object(_actionCreators__WEBPACK_IMPORTED_MODULE_4__["removeLineWithKey"])(key));
     }
   };
 };
@@ -541,21 +537,22 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var colorPickerStyle = {
-  left: 0,
-  bottom: 0,
+  // left: 0,
+  // top: 0,
   backgroundColor: 'rgb(0,188,212)',
-  position: 'fixed',
+  // position: 'fixed',
   height: 100,
   width: 100,
   margin: 20,
   textAlign: 'center',
   display: 'grid',
+  gridRowStart: 1,
   gridTemplateRows: 'repeat(3,1fr)',
   gridTemplateColumns: '10% auto 10%'
 };
 
 var pickerStyle = {
-  gridColumnStart: 2,
+  position: 'relative',
   gridRowStart: 2,
   fontSize: '20px'
 };
@@ -574,18 +571,28 @@ var ColorPicker = function ColorPicker(props) {
 
   var selectorText = '';
   if (props.brushColor === props.brushColorDefault) {
-    selectorText = 'Click Me!';
+    selectorText = 'Click the circle!';
   }
   colorPickerStyle.backgroundColor = props.brushColor;
   return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(
-    material_ui_Paper__WEBPACK_IMPORTED_MODULE_2___default.a,
+    'div',
     {
+      style: {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        display: 'grid',
+        gridTemplateColumns: 1,
+        gridTemplateRows: 2
+      }
+    },
+    react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(material_ui_Paper__WEBPACK_IMPORTED_MODULE_2___default.a, {
       onClick: clickFunction,
       id: 'ColorPickerBody',
       style: colorPickerStyle,
       zDepth: 4,
       circle: true
-    },
+    }),
     react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(
       'p',
       { style: pickerStyle, className: 'unselectable' },
@@ -777,8 +784,8 @@ var updateDrawingsCB = function updateDrawingsCB(drawingObject) {
   _store__WEBPACK_IMPORTED_MODULE_1__["default"].dispatch(Object(_actionCreators__WEBPACK_IMPORTED_MODULE_2__["newDrawingObject"])(drawingObject));
 };
 
-var newDrawingsCB = function newDrawingsCB(key, line) {
-  _store__WEBPACK_IMPORTED_MODULE_1__["default"].dispatch(Object(_actionCreators__WEBPACK_IMPORTED_MODULE_2__["appendToDrawingObject"])(key, line));
+var newDrawingsCB = function newDrawingsCB(key, drawing) {
+  _store__WEBPACK_IMPORTED_MODULE_1__["default"].dispatch(Object(_actionCreators__WEBPACK_IMPORTED_MODULE_2__["appendToEndOfLineWithKey"])(key, drawing));
 };
 
 var openConnection = function openConnection() {
@@ -885,8 +892,8 @@ function requestKey() {
   return keyPromise;
 }
 
-function emitDrawing(key, line) {
-  socket.emit('drawing', key, line);
+function emitDrawing(key, drawing) {
+  socket.emit('drawing', key, drawing);
 }
 
 var connect = function connect(updateDrawingsCB, newDrawingCB) {
@@ -1013,7 +1020,7 @@ var _temp = function () {
 /*!******************************!*\
   !*** ./js/actionCreators.js ***!
   \******************************/
-/*! exports provided: setTimerValue, setKeyValue, appendToCurrentLine, appendToDrawingObject, newDrawingObject, setCurrentLine, setBrushColor, setDrawingEnabled, setPainting, setRadius, setRadiusFalloffModifier */
+/*! exports provided: setTimerValue, setKeyValue, appendToCurrentLine, appendToDrawingObject, removeLineWithKey, appendToEndOfLineWithKey, newDrawingObject, setCurrentLine, setBrushColor, setDrawingEnabled, setPainting, setRadius, setRadiusFalloffModifier */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1022,6 +1029,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setKeyValue", function() { return setKeyValue; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "appendToCurrentLine", function() { return appendToCurrentLine; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "appendToDrawingObject", function() { return appendToDrawingObject; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "removeLineWithKey", function() { return removeLineWithKey; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "appendToEndOfLineWithKey", function() { return appendToEndOfLineWithKey; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "newDrawingObject", function() { return newDrawingObject; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setCurrentLine", function() { return setCurrentLine; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setBrushColor", function() { return setBrushColor; });
@@ -1047,6 +1056,20 @@ function appendToCurrentLine(lineValue) {
 function appendToDrawingObject(key, value) {
   return {
     type: _actions__WEBPACK_IMPORTED_MODULE_0__["APPEND_TO_DRAWING_OBJECT"],
+    payload: { key: key, value: value }
+  };
+}
+
+function removeLineWithKey(key) {
+  return {
+    type: _actions__WEBPACK_IMPORTED_MODULE_0__["REMOVE_LINE_WITH_KEY"],
+    payload: key
+  };
+}
+
+function appendToEndOfLineWithKey(key, value) {
+  return {
+    type: _actions__WEBPACK_IMPORTED_MODULE_0__["APPEND_TO_END_OF_LINE_WITH_KEY"],
     payload: { key: key, value: value }
   };
 }
@@ -1096,6 +1119,10 @@ var _temp = function () {
 
   __REACT_HOT_LOADER__.register(appendToDrawingObject, 'appendToDrawingObject', '/Users/user/Documents/JS/HumanitiesProject/js/actionCreators.js');
 
+  __REACT_HOT_LOADER__.register(removeLineWithKey, 'removeLineWithKey', '/Users/user/Documents/JS/HumanitiesProject/js/actionCreators.js');
+
+  __REACT_HOT_LOADER__.register(appendToEndOfLineWithKey, 'appendToEndOfLineWithKey', '/Users/user/Documents/JS/HumanitiesProject/js/actionCreators.js');
+
   __REACT_HOT_LOADER__.register(newDrawingObject, 'newDrawingObject', '/Users/user/Documents/JS/HumanitiesProject/js/actionCreators.js');
 
   __REACT_HOT_LOADER__.register(setCurrentLine, 'setCurrentLine', '/Users/user/Documents/JS/HumanitiesProject/js/actionCreators.js');
@@ -1119,7 +1146,7 @@ var _temp = function () {
 /*!***********************!*\
   !*** ./js/actions.js ***!
   \***********************/
-/*! exports provided: SET_TIMER_VALUE, SET_KEY_VALUE, SET_BRUSH_COLOR, SET_DRAWING_ENABLED, SET_PAINTING, SET_RADIUS_MODIFIER, SET_RADIUS, APPEND_TO_CURRENT_LINE, SET_CURRENT_LINE, APPEND_TO_DRAWING_OBJECT, NEW_DRAWING_OBJECT */
+/*! exports provided: SET_TIMER_VALUE, SET_KEY_VALUE, SET_BRUSH_COLOR, SET_DRAWING_ENABLED, SET_PAINTING, SET_RADIUS_MODIFIER, SET_RADIUS, APPEND_TO_CURRENT_LINE, SET_CURRENT_LINE, REMOVE_LINE_WITH_KEY, APPEND_TO_DRAWING_OBJECT, APPEND_TO_END_OF_LINE_WITH_KEY, NEW_DRAWING_OBJECT */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1133,7 +1160,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SET_RADIUS", function() { return SET_RADIUS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "APPEND_TO_CURRENT_LINE", function() { return APPEND_TO_CURRENT_LINE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SET_CURRENT_LINE", function() { return SET_CURRENT_LINE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "REMOVE_LINE_WITH_KEY", function() { return REMOVE_LINE_WITH_KEY; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "APPEND_TO_DRAWING_OBJECT", function() { return APPEND_TO_DRAWING_OBJECT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "APPEND_TO_END_OF_LINE_WITH_KEY", function() { return APPEND_TO_END_OF_LINE_WITH_KEY; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "NEW_DRAWING_OBJECT", function() { return NEW_DRAWING_OBJECT; });
 var SET_TIMER_VALUE = 'SET_TIMER_VALUE';
 var SET_KEY_VALUE = 'SET_KEY_VALUE';
@@ -1144,7 +1173,9 @@ var SET_RADIUS_MODIFIER = 'SET_RADIUS_MODIFIER';
 var SET_RADIUS = 'SET_RADIUS';
 var APPEND_TO_CURRENT_LINE = 'APPEND_TO_CURRENT_LINE';
 var SET_CURRENT_LINE = 'SET_CURRENT_LINE';
+var REMOVE_LINE_WITH_KEY = 'REMOVE_LINE_WITH_KEY';
 var APPEND_TO_DRAWING_OBJECT = 'APPEND_TO_DRAWING_OBJECT';
+var APPEND_TO_END_OF_LINE_WITH_KEY = 'APPEND_TO_END_OF_LINE_WITH_KEY';
 var NEW_DRAWING_OBJECT = 'NEW_DRAWING_OBJECT';
 ;
 
@@ -1171,7 +1202,11 @@ var _temp = function () {
 
   __REACT_HOT_LOADER__.register(SET_CURRENT_LINE, 'SET_CURRENT_LINE', '/Users/user/Documents/JS/HumanitiesProject/js/actions.js');
 
+  __REACT_HOT_LOADER__.register(REMOVE_LINE_WITH_KEY, 'REMOVE_LINE_WITH_KEY', '/Users/user/Documents/JS/HumanitiesProject/js/actions.js');
+
   __REACT_HOT_LOADER__.register(APPEND_TO_DRAWING_OBJECT, 'APPEND_TO_DRAWING_OBJECT', '/Users/user/Documents/JS/HumanitiesProject/js/actions.js');
+
+  __REACT_HOT_LOADER__.register(APPEND_TO_END_OF_LINE_WITH_KEY, 'APPEND_TO_END_OF_LINE_WITH_KEY', '/Users/user/Documents/JS/HumanitiesProject/js/actions.js');
 
   __REACT_HOT_LOADER__.register(NEW_DRAWING_OBJECT, 'NEW_DRAWING_OBJECT', '/Users/user/Documents/JS/HumanitiesProject/js/actions.js');
 }();
@@ -1240,10 +1275,39 @@ var appendToCurrentLine = function appendToCurrentLine(state, action) {
     currentLine: newArray
   });
 };
+
+var appendToEndOfLineWithKey = function appendToEndOfLineWithKey(state, action) {
+  var key = action.payload.key;
+  var value = action.payload.value;
+
+  var newDrawingObject = Object.assign({}, state.drawingObject);
+
+  if (newDrawingObject[key]) {
+    var newArray = newDrawingObject[key].slice();
+    newArray.push(value);
+    newDrawingObject[key] = newArray;
+  } else {
+    newDrawingObject[key] = [value];
+  }
+
+  return Object.assign({}, state, {
+    drawingObject: newDrawingObject
+  });
+};
+
 var appendToDrawingObject = function appendToDrawingObject(state, action) {
   var newDrawingObject = Object.assign({}, state.drawingObject);
 
   newDrawingObject[action.payload.key] = action.payload.value;
+  return Object.assign({}, state, {
+    drawingObject: newDrawingObject
+  });
+};
+
+var removeLineWithKey = function removeLineWithKey(state, action) {
+  var newDrawingObject = Object.assign({}, state.drawingObject);
+
+  delete newDrawingObject[action.payload];
   return Object.assign({}, state, {
     drawingObject: newDrawingObject
   });
@@ -1280,10 +1344,14 @@ var rootReducer = function rootReducer() {
       return appendToCurrentLine(state, action);
     case _actions__WEBPACK_IMPORTED_MODULE_0__["APPEND_TO_DRAWING_OBJECT"]:
       return appendToDrawingObject(state, action);
+    case _actions__WEBPACK_IMPORTED_MODULE_0__["APPEND_TO_END_OF_LINE_WITH_KEY"]:
+      return appendToEndOfLineWithKey(state, action);
     case _actions__WEBPACK_IMPORTED_MODULE_0__["NEW_DRAWING_OBJECT"]:
       return newDrawingObject(state, action);
     case _actions__WEBPACK_IMPORTED_MODULE_0__["SET_CURRENT_LINE"]:
       return setCurrentLine(state, action);
+    case _actions__WEBPACK_IMPORTED_MODULE_0__["REMOVE_LINE_WITH_KEY"]:
+      return removeLineWithKey(state, action);
     default:
       return state;
   }
@@ -1316,7 +1384,11 @@ var _temp = function () {
 
   __REACT_HOT_LOADER__.register(appendToCurrentLine, 'appendToCurrentLine', '/Users/user/Documents/JS/HumanitiesProject/js/reducers.js');
 
+  __REACT_HOT_LOADER__.register(appendToEndOfLineWithKey, 'appendToEndOfLineWithKey', '/Users/user/Documents/JS/HumanitiesProject/js/reducers.js');
+
   __REACT_HOT_LOADER__.register(appendToDrawingObject, 'appendToDrawingObject', '/Users/user/Documents/JS/HumanitiesProject/js/reducers.js');
+
+  __REACT_HOT_LOADER__.register(removeLineWithKey, 'removeLineWithKey', '/Users/user/Documents/JS/HumanitiesProject/js/reducers.js');
 
   __REACT_HOT_LOADER__.register(newDrawingObject, 'newDrawingObject', '/Users/user/Documents/JS/HumanitiesProject/js/reducers.js');
 
