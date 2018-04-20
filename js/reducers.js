@@ -9,7 +9,9 @@ import {
   APPEND_TO_DRAWING_OBJECT,
   APPEND_TO_CURRENT_LINE,
   SET_CURRENT_LINE,
-  NEW_DRAWING_OBJECT
+  NEW_DRAWING_OBJECT,
+  APPEND_TO_END_OF_LINE_WITH_KEY,
+  REMOVE_LINE_WITH_KEY
 } from './actions';
 
 const DEFAULT_STATE = {
@@ -53,10 +55,39 @@ const appendToCurrentLine = (state, action) => {
     currentLine: newArray
   });
 };
+
+const appendToEndOfLineWithKey = (state, action) => {
+  const key = action.payload.key;
+  const value = action.payload.value;
+
+  const newDrawingObject = Object.assign({}, state.drawingObject);
+
+  if (newDrawingObject[key]) {
+    const newArray = newDrawingObject[key].slice();
+    newArray.push(value);
+    newDrawingObject[key] = newArray;
+  } else {
+    newDrawingObject[key] = [value];
+  }
+
+  return Object.assign({}, state, {
+    drawingObject: newDrawingObject
+  });
+};
+
 const appendToDrawingObject = (state, action) => {
   const newDrawingObject = Object.assign({}, state.drawingObject);
 
   newDrawingObject[action.payload.key] = action.payload.value;
+  return Object.assign({}, state, {
+    drawingObject: newDrawingObject
+  });
+};
+
+const removeLineWithKey = (state, action) => {
+  const newDrawingObject = Object.assign({}, state.drawingObject);
+
+  delete newDrawingObject[action.payload];
   return Object.assign({}, state, {
     drawingObject: newDrawingObject
   });
@@ -88,10 +119,14 @@ const rootReducer = (state = DEFAULT_STATE, action) => {
       return appendToCurrentLine(state, action);
     case APPEND_TO_DRAWING_OBJECT:
       return appendToDrawingObject(state, action);
+    case APPEND_TO_END_OF_LINE_WITH_KEY:
+      return appendToEndOfLineWithKey(state, action);
     case NEW_DRAWING_OBJECT:
       return newDrawingObject(state, action);
     case SET_CURRENT_LINE:
       return setCurrentLine(state, action);
+    case REMOVE_LINE_WITH_KEY:
+      return removeLineWithKey(state, action);
     default:
       return state;
   }
