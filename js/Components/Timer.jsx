@@ -42,7 +42,7 @@ const Timer = (props: { timerValue: number, painting: boolean }) => {
   );
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: { timerValue: number, painting: boolean }) => ({
   timerValue: state.timerValue,
   painting: state.painting
 });
