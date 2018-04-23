@@ -57,8 +57,7 @@ const appendToCurrentLine = (state, action) => {
 };
 
 const appendToEndOfLineWithKey = (state, action) => {
-  const key = action.payload.key;
-  const value = action.payload.value;
+  const { key, value } = action.payload;
 
   const newDrawingObject = Object.assign({}, state.drawingObject);
 
