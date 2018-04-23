@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Paper from 'material-ui/Paper';
@@ -13,7 +14,6 @@ import {
   setRadius,
   appendToCurrentLine,
   setCurrentLine,
-  appendToDrawingObject,
   appendToEndOfLineWithKey,
   removeLineWithKey
 } from '../actionCreators';
@@ -38,13 +38,36 @@ const canvasStyle = {
   width: '1000px'
 };
 
-class Canvas extends Component {
+type Props = {
+  keyValue: string,
+  brushColor: string,
+  drawingEnabled: boolean,
+  painting: boolean,
+  radius: number,
+  radiusModifier: number,
+  currentLine: [Drawing],
+  drawingObject: { string: [Drawing] },
+  timerValue: number,
+  handleAppendToEndOfKey: (string, Drawing | boolean) => void,
+  handleCurrentLineSetState: mixed => void,
+  handleCurrentLineStateChange: (Drawing | boolean) => void,
+  handleDrawingStateChange: boolean => void,
+  handleKeyRemoval: string => void,
+  handlePaintingStateChange: boolean => void,
+  handleRadiusStateChange: number => void
+};
+class Canvas extends Component<Props> {
   constructor(props) {
     super(props);
+    // $FlowFixMe flow does not support this
     this.canvas = React.createRef();
+    // $FlowFixMe flow does not support this
     this.mouseUp = this.mouseUp.bind(this);
+    // $FlowFixMe flow does not support this
     this.mouseDown = this.mouseDown.bind(this);
+    // $FlowFixMe flow does not support this
     this.mouseMove = this.mouseMove.bind(this);
+    // $FlowFixMe flow does not support this
     this.mouseLeave = this.mouseLeave.bind(this);
   }
 
@@ -61,14 +84,12 @@ class Canvas extends Component {
     this.drawToCanvas();
   }
 
-  /* eslint-disable */
   brushReset() {
     this.appendStopCode();
     this.props.handlePaintingStateChange(false);
     this.props.handleDrawingStateChange(false);
     this.props.handleRadiusStateChange(15);
     this.props.handleCurrentLineSetState([]);
-
     if (this.props.timerValue === 0) {
       updateKey();
       updateTimer(5);
@@ -76,7 +97,7 @@ class Canvas extends Component {
   }
 
   removeKeys(keys) {
-    for (let i = 0; i < keys.length; i++) {
+    for (let i = 0; i < keys.length; i += 1) {
       this.props.handleKeyRemoval(keys[i]);
     }
   }
@@ -85,10 +106,7 @@ class Canvas extends Component {
     this.pushDrawing(false);
   }
 
-  /* eslint-enabled */
-
   addDrawing(x, y, dragging) {
-    /* eslint-disable */
     if (this.props.radius <= 1) {
       this.brushReset();
     } else {
@@ -99,30 +117,27 @@ class Canvas extends Component {
         radius: this.props.radius,
         color: this.props.brushColor
       };
-      this.pushDrawing(drawing);
 
-      if (dragging) {
-        const displaceX = Math.abs(this.state.lastX - x);
-        const displaceY = Math.abs(this.state.lastY - y);
+      if (this.props.currentLine.length > 0) {
+        const currentLineLength = this.props.currentLine.length;
+        const displaceX = Math.abs(
+          this.props.currentLine[currentLineLength - 1].x - x
+        );
+        const displaceY = Math.abs(
+          this.props.currentLine[currentLineLength - 1].y - y
+        );
         const displacement = (displaceX ** 2 + displaceY ** 2) ** (1 / 2);
 
         const newRadius =
           this.props.radius - this.props.radiusModifier * displacement;
         this.props.handleRadiusStateChange(newRadius);
-        this.setState({
-          lastX: x,
-          lastY: y
-        });
-      } else {
-        this.setState({
-          lastX: x,
-          lastY: y
-        });
       }
+      this.pushDrawing(drawing);
     }
   }
 
   drawThisArray(array) {
+    // $FlowFixMe flow does not support this
     const context = this.canvas.current.getContext('2d');
     for (let j = 0; j < array.length; j += 1) {
       context.lineCap = 'round';
@@ -155,9 +170,7 @@ class Canvas extends Component {
     const keys = Object.keys(this.props.drawingObject);
     const drawingsObject = this.props.drawingObject;
 
-    const context = this.canvas.current.getContext('2d');
-
-    let removable = [];
+    const removable = [];
     // pull up the line array by line
     for (let i = 0; i < keys.length; i += 1) {
       const drawingArray = drawingsObject[keys[i]];
@@ -179,7 +192,9 @@ class Canvas extends Component {
   }
 
   passDrawingData(e, dragging) {
+    // $FlowFixMe flow does not support this
     const x = e.pageX - this.canvas.current.offsetLeft;
+    // $FlowFixMe flow does not support this
     const y = e.pageY - this.canvas.current.offsetTop;
     this.addDrawing(x, y, dragging);
   }
@@ -193,16 +208,14 @@ class Canvas extends Component {
 
   mouseDown(e) {
     if (this.props.drawingEnabled) {
-      this.props.handlePaintingStateChange(true); // eslint-disable-line
+      this.props.handlePaintingStateChange(true);
 
       this.passDrawingData(e, false);
     }
   }
 
   mouseMove(e) {
-    /* eslint-disable */
     if (this.props.painting) {
-      /* eslint-enabled */
       this.passDrawingData(e, true);
     }
   }
@@ -228,6 +241,7 @@ class Canvas extends Component {
             onMouseUp={this.mouseUp}
             onTouchEnd={this.mouseUp}
             onMouseLeave={this.mouseLeave}
+            // $FlowFixMe flow does not support this
             ref={this.canvas}
           />
         </Paper>
@@ -236,7 +250,7 @@ class Canvas extends Component {
   }
 }
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch: (() => void) => void) => ({
   handleDrawingStateChange(value) {
     dispatch(setDrawingEnabled(value));
   },
@@ -252,9 +266,6 @@ const mapDispatchToProps = dispatch => ({
   handleCurrentLineSetState(value) {
     dispatch(setCurrentLine(value));
   },
-  handleAppendDrawingObject(key, value) {
-    dispatch(appendToDrawingObject(key, value));
-  },
   handleAppendToEndOfKey(key, value) {
     dispatch(appendToEndOfLineWithKey(key, value));
   },
@@ -263,7 +274,7 @@ const mapDispatchToProps = dispatch => ({
   }
 });
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: Props) => ({
   keyValue: state.keyValue,
   brushColor: state.brushColor,
   drawingEnabled: state.drawingEnabled,
