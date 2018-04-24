@@ -24,11 +24,11 @@ export function setKeyValue(keyValue: string) {
   return { type: SET_KEY_VALUE, payload: keyValue };
 }
 
-export function appendToCurrentLine(lineValue: Drawing | false) {
+export function appendToCurrentLine(lineValue: Drawing) {
   return { type: APPEND_TO_CURRENT_LINE, payload: lineValue };
 }
 
-export function appendToDrawingObject(key: string, value: Drawing | false) {
+export function appendToDrawingObject(key: string, value: Drawing) {
   return {
     type: APPEND_TO_DRAWING_OBJECT,
     payload: { key, value }

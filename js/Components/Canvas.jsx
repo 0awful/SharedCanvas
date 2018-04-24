@@ -3,19 +3,19 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Paper from 'material-ui/Paper';
 import {
-  updateKey,
-  updateTimer,
   emitDrawing,
-  openConnection
+  openConnection,
+  updateKey,
+  updateTimer
 } from '../SocketsIndex';
 import {
+  appendToCurrentLine,
+  appendToEndOfLineWithKey,
+  removeLineWithKey,
+  setCurrentLine,
   setDrawingEnabled,
   setPainting,
-  setRadius,
-  appendToCurrentLine,
-  setCurrentLine,
-  appendToEndOfLineWithKey,
-  removeLineWithKey
+  setRadius
 } from '../actionCreators';
 
 const paperStyle = {
@@ -141,39 +141,36 @@ class Canvas extends Component<Props> {
   drawThisArray(array) {
     // $FlowFixMe flow does not support this
     const context = this.canvas.current.getContext('2d');
-    for (let j = 0; j < array.length; j += 1) {
-      context.lineCap = 'round';
-      context.lineJoin = 'round';
+    context.lineCap = 'round';
+    context.lineJoin = 'round';
 
-      for (let i = 0; i < array.length; i += 1) {
-        if (array[i]) {
-          context.beginPath();
+    for (let i = 0; i < array.length; i += 1) {
+      context.beginPath();
 
-          if (array[i].dragging && i) {
-            // $FlowFixMe this is already checked for
-            context.moveTo(array[i - 1].x, array[i - 1].y);
-          } else {
-            // $FlowFixMe this is already checked for
-            context.moveTo(array[i].x, array[i].y);
-          }
-
-          // $FlowFixMe this is already checked for
-          context.lineTo(array[i].x, array[i].y);
-          context.closePath();
-          // $FlowFixMe this is already checked for
-          context.lineWidth = array[i].radius;
-          // $FlowFixMe this is already checked for
-          context.strokeStyle = array[i].color;
-          context.stroke();
-        }
+      if (array[i].dragging && i) {
+        // $FlowFixMe this is already checked for
+        context.moveTo(array[i - 1].x, array[i - 1].y);
+      } else {
+        // $FlowFixMe this is already checked for
+        context.moveTo(array[i].x, array[i].y);
       }
+
+      // $FlowFixMe this is already checked for
+      context.lineTo(array[i].x, array[i].y);
+      context.closePath();
+      // $FlowFixMe this is already checked for
+      context.lineWidth = array[i].radius;
+      // $FlowFixMe this is already checked for
+      context.strokeStyle = array[i].color;
+      context.stroke();
     }
   }
 
   drawToCanvas() {
     if (
       this.props.drawingObject === undefined ||
-      this.props.drawingObject === null
+      this.props.drawingObject === null ||
+      this.props.drawingObject === {}
     ) {
       return;
     }

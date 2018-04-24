@@ -13,8 +13,7 @@ const newDrawings = (key: string, drawing: Drawing) => {
 };
 
 const openConnection = () => {
-  // $FlowFixMe Here flow thinks newDrawings is string, any and not string, Drawing...
-  connect((updateDrawings, newDrawings));
+  connect(updateDrawings, newDrawings);
 };
 
 export default openConnection;
