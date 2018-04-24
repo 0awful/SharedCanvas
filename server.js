@@ -1,4 +1,4 @@
-const keygen = require('./keygen.js');
+const keyStore = require('./keyStore.js');
 
 const host = 'localhost';
 const port = 9000;
@@ -16,7 +16,10 @@ function handleHTTP(req, res) {
   if (req.method === 'GET') {
     // TODO: DEFINITELY REPLACE THIS WITH AN AUTHENTICATED WAY OF DOING THIS
     if (req.url === '/resetcanvas') {
-      drawings = [];
+      drawings = {};
+    }
+    if (req.url === '/logs') {
+      console.log(drawings);
     }
     if (req.url === '/') {
       req.addListener('end', () => {
@@ -44,20 +47,24 @@ function handleIO(socket) {
   }
 
   sockets.push(socket);
+  console.log('should be emitting drawings');
   socket.emit('updateDrawings', drawings);
 
   socket.on('disconnect', disconnect);
 
   socket.on('drawing', (key, drawing) => {
-    console.log(key, drawing);
-    if (drawings[key]) {
-      const array = drawings[key];
-      array.push(drawing);
-      drawings[key] = array;
+    if (keyStore.checkKey(key)) {
+      if (drawings[key]) {
+        const array = drawings[key];
+        array.push(drawing);
+        drawings[key] = array;
+      } else {
+        drawings[key] = [drawing];
+      }
+      socket.broadcast.emit('drawing', key, drawing);
     } else {
-      drawings[key] = [drawing];
+      console.log('illegalKey');
     }
-    socket.broadcast.emit('drawing', key, drawing);
   });
 
   socket.on('subscribeToTimer', (interval, timerValue) => {
@@ -74,7 +81,7 @@ function handleIO(socket) {
 
   socket.on('requestKey', () => {
     console.log('client is requesting a key');
-    const key = keygen.randomKey();
+    const key = keyStore.guardedKey();
     console.log('serving key: ', key);
     socket.emit('key', key);
   });
