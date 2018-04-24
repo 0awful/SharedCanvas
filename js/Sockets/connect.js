@@ -4,16 +4,17 @@ import { connect } from './sockets';
 import store from '../store';
 import { newDrawingObject, appendToEndOfLineWithKey } from '../actionCreators';
 
-const updateDrawingsCB = (drawingObject: { string: [Drawing] }) => {
+const updateDrawings = (drawingObject: { string: [Drawing] }) => {
   store.dispatch(newDrawingObject(drawingObject));
 };
 
-const newDrawingsCB = (key: string, drawing: drawing) => {
+const newDrawings = (key: string, drawing: Drawing) => {
   store.dispatch(appendToEndOfLineWithKey(key, drawing));
 };
 
 const openConnection = () => {
-  connect(updateDrawingsCB, newDrawingsCB);
+  // $FlowFixMe Here flow thinks newDrawings is string, any and not string, Drawing...
+  connect((updateDrawings, newDrawings));
 };
 
 export default openConnection;
