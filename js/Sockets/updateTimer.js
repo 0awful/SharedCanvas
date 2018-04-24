@@ -1,3 +1,4 @@
+// @flow
 import { setTimerValue, setDrawingEnabled } from '../actionCreators';
 import { subscribeToTimer } from './sockets';
 import store from '../store';

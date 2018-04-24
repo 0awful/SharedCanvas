@@ -1,12 +1,14 @@
+// @flow
+
 import { connect } from './sockets';
 import store from '../store';
 import { newDrawingObject, appendToEndOfLineWithKey } from '../actionCreators';
 
-const updateDrawingsCB = drawingObject => {
+const updateDrawingsCB = (drawingObject: { string: [Drawing] }) => {
   store.dispatch(newDrawingObject(drawingObject));
 };
 
-const newDrawingsCB = (key, drawing) => {
+const newDrawingsCB = (key: string, drawing: drawing) => {
   store.dispatch(appendToEndOfLineWithKey(key, drawing));
 };
 

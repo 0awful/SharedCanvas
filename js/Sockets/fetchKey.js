@@ -1,3 +1,4 @@
+// @flow
 import { setKeyValue } from '../actionCreators';
 import { requestKey } from './sockets';
 import store from '../store';

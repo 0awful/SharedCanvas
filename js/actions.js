@@ -1,3 +1,4 @@
+// @flow
 export const SET_TIMER_VALUE = 'SET_TIMER_VALUE';
 export const SET_KEY_VALUE = 'SET_KEY_VALUE';
 export const SET_BRUSH_COLOR = 'SET_BRUSH_COLOR';

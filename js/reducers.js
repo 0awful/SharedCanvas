@@ -1,3 +1,5 @@
+// @flow
+
 import {
   SET_TIMER_VALUE,
   SET_KEY_VALUE,
