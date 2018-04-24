@@ -1,3 +1,5 @@
+const activeKeys = new Set();
+
 function randomLetter() {
   let letter = '';
   switch (Math.floor(Math.random() * 26)) {
@@ -89,7 +91,27 @@ function randomLetter() {
 }
 
 function randomKey() {
+  // obviously this could be improved, but effectively this solves all my problems. The performance
+  // is O(n) so it's not horrible.
   const key =
+    randomLetter() +
+    randomLetter() +
+    randomLetter() +
+    randomLetter() +
+    randomLetter() +
+    randomLetter() +
+    randomLetter() +
+    randomLetter() +
+    randomLetter() +
+    randomLetter() +
+    randomLetter() +
+    randomLetter() +
+    randomLetter() +
+    randomLetter() +
+    randomLetter() +
+    randomLetter() +
+    randomLetter() +
+    randomLetter() +
     randomLetter() +
     randomLetter() +
     randomLetter() +
@@ -100,4 +122,25 @@ function randomKey() {
   return key;
 }
 
-module.exports.randomKey = randomKey;
+function guardedKey() {
+  // we have a keyspace of 52^24, which is 1.5e41, so collisions are unlikely, and a DDOS
+  // would take, well I mean, a little time, to be effective, but as
+  // we approach max this generation method will be really bad. So we'll
+  // get a better method later on.
+
+  const tempKey = randomKey();
+
+  if (activeKeys.has(tempKey)) {
+    return guardedKey();
+  }
+
+  activeKeys.add(tempKey);
+  return tempKey;
+}
+
+function checkKey(key) {
+  return activeKeys.has(key);
+}
+
+module.exports.guardedKey = guardedKey;
+module.exports.checkKey = checkKey;
