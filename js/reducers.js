@@ -98,7 +98,7 @@ const newDrawingObject = (state, action) =>
 const setCurrentLine = (state, action) =>
   Object.assign({}, state, { currentLine: action.payload });
 
-const rootReducer = (state: AppState = DEFAULT_STATE, action) => {
+const rootReducer = (state = DEFAULT_STATE, action) => {
   switch (action.type) {
     case SET_TIMER_VALUE:
       return setTimerValue(state, action);
