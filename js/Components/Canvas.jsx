@@ -121,9 +121,11 @@ class Canvas extends Component<Props> {
       if (this.props.currentLine.length > 0) {
         const currentLineLength = this.props.currentLine.length;
         const displaceX = Math.abs(
+          // $FlowFixMe this can never be false
           this.props.currentLine[currentLineLength - 1].x - x
         );
         const displaceY = Math.abs(
+          // $FlowFixMe this can never be false
           this.props.currentLine[currentLineLength - 1].y - y
         );
         const displacement = (displaceX ** 2 + displaceY ** 2) ** (1 / 2);
@@ -144,18 +146,26 @@ class Canvas extends Component<Props> {
       context.lineJoin = 'round';
 
       for (let i = 0; i < array.length; i += 1) {
-        context.beginPath();
-        if (array[i].dragging && i) {
-          context.moveTo(array[i - 1].x, array[i - 1].y);
-        } else {
-          context.moveTo(array[i].x, array[i].y);
-        }
+        if (array[i]) {
+          context.beginPath();
 
-        context.lineTo(array[i].x, array[i].y);
-        context.closePath();
-        context.lineWidth = array[i].radius;
-        context.strokeStyle = array[i].color;
-        context.stroke();
+          if (array[i].dragging && i) {
+            // $FlowFixMe this is already checked for
+            context.moveTo(array[i - 1].x, array[i - 1].y);
+          } else {
+            // $FlowFixMe this is already checked for
+            context.moveTo(array[i].x, array[i].y);
+          }
+
+          // $FlowFixMe this is already checked for
+          context.lineTo(array[i].x, array[i].y);
+          context.closePath();
+          // $FlowFixMe this is already checked for
+          context.lineWidth = array[i].radius;
+          // $FlowFixMe this is already checked for
+          context.strokeStyle = array[i].color;
+          context.stroke();
+        }
       }
     }
   }
@@ -250,7 +260,7 @@ class Canvas extends Component<Props> {
   }
 }
 
-const mapDispatchToProps = (dispatch: (() => void) => void) => ({
+const mapDispatchToProps = (dispatch: ({}) => void) => ({
   handleDrawingStateChange(value) {
     dispatch(setDrawingEnabled(value));
   },
