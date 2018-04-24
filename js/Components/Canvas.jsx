@@ -145,24 +145,26 @@ class Canvas extends Component<Props> {
     context.lineJoin = 'round';
 
     for (let i = 0; i < array.length; i += 1) {
-      context.beginPath();
+      if (array[i]) {
+        context.beginPath();
 
-      if (array[i].dragging && i) {
+        if (array[i].dragging && i) {
+          // $FlowFixMe this is already checked for
+          context.moveTo(array[i - 1].x, array[i - 1].y);
+        } else {
+          // $FlowFixMe this is already checked for
+          context.moveTo(array[i].x, array[i].y);
+        }
+
         // $FlowFixMe this is already checked for
-        context.moveTo(array[i - 1].x, array[i - 1].y);
-      } else {
+        context.lineTo(array[i].x, array[i].y);
+        context.closePath();
         // $FlowFixMe this is already checked for
-        context.moveTo(array[i].x, array[i].y);
+        context.lineWidth = array[i].radius;
+        // $FlowFixMe this is already checked for
+        context.strokeStyle = array[i].color;
+        context.stroke();
       }
-
-      // $FlowFixMe this is already checked for
-      context.lineTo(array[i].x, array[i].y);
-      context.closePath();
-      // $FlowFixMe this is already checked for
-      context.lineWidth = array[i].radius;
-      // $FlowFixMe this is already checked for
-      context.strokeStyle = array[i].color;
-      context.stroke();
     }
   }
 
