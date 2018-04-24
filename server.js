@@ -47,7 +47,7 @@ function handleIO(socket) {
   }
 
   sockets.push(socket);
-  console.log('should be emitting drawings');
+
   socket.emit('updateDrawings', drawings);
 
   socket.on('disconnect', disconnect);
