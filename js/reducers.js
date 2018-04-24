@@ -1,5 +1,3 @@
-// @flow
-
 import {
   SET_TIMER_VALUE,
   SET_KEY_VALUE,
@@ -26,7 +24,7 @@ const DEFAULT_STATE = {
   drawingEnabled: true,
   painting: false,
   radius: 15,
-  radiusModifier: '0.044'
+  radiusModifier: 0.044
 };
 
 const setTimerValue = (state, action) =>
@@ -100,7 +98,7 @@ const newDrawingObject = (state, action) =>
 const setCurrentLine = (state, action) =>
   Object.assign({}, state, { currentLine: action.payload });
 
-const rootReducer = (state = DEFAULT_STATE, action) => {
+const rootReducer = (state: AppState = DEFAULT_STATE, action) => {
   switch (action.type) {
     case SET_TIMER_VALUE:
       return setTimerValue(state, action);
