@@ -60,7 +60,7 @@ const ColorPicker = (props: {
   );
 };
 
-const mapDispatchToProps = (dispatch: (() => void) => void) => ({
+const mapDispatchToProps = (dispatch: ({}) => void) => ({
   handleBrushColorChange(color: string) {
     dispatch(setBrushColor(color));
   }

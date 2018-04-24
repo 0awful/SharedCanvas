@@ -24,7 +24,7 @@ const DEFAULT_STATE = {
   drawingEnabled: true,
   painting: false,
   radius: 15,
-  radiusModifier: '0.044'
+  radiusModifier: 0.044
 };
 
 const setTimerValue = (state, action) =>

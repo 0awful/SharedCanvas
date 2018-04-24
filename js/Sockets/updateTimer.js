@@ -1,9 +1,10 @@
+// @flow
 import { setTimerValue, setDrawingEnabled } from '../actionCreators';
 import { subscribeToTimer } from './sockets';
 import store from '../store';
 
 // TODO: handle call with illegal time value (0 or less)
-const startTimer = duration => {
+const startTimer = (duration: number) => {
   store.dispatch(setTimerValue(duration));
   subscribeToTimer(duration, (err, newValue) => {
     store.dispatch(setTimerValue(newValue));
