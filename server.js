@@ -1,7 +1,7 @@
 const keyStore = require('./keyStore.js');
 
-const host = 'localhost';
-const port = 9000;
+const host = '0.0.0.0';
+const port = 3000;
 
 const http = require('http');
 
