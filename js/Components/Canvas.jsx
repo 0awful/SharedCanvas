@@ -18,24 +18,10 @@ import {
   setRadius
 } from '../actionCreators';
 
-const paperStyle = {
-  height: '1000px',
-  width: '1000px',
-  gridRowStart: 2,
-  gridColumnStart: 2
-};
-
-const gridStyle = {
-  display: 'grid',
-  width: '100%',
-  height: '100%',
-  gridTemplateColumns: 'auto 1000px auto',
-  gridTemplateRows: 'minmax(5%, 10%) 1000px minmax(5%, 10%)'
-};
-
 const canvasStyle = {
-  height: '1000px',
-  width: '1000px'
+  touchAction: 'none',
+  height: '800px',
+  width: '800px'
 };
 
 type Props = {
@@ -69,18 +55,24 @@ class Canvas extends Component<Props> {
     this.mouseMove = this.mouseMove.bind(this);
     // $FlowFixMe flow does not support this
     this.mouseLeave = this.mouseLeave.bind(this);
+    // $FlowFixMe flow does not support this
+    this.touchStart = this.touchStart.bind(this);
+    // $FlowFixMe flow does not support this
+    this.touchMove = this.touchMove.bind(this);
+    // $FlowFixMe flow does not support this
+    this.touchStop = this.touchStop.bind(this);
   }
 
   componentDidMount() {
     updateKey();
     openConnection();
-    console.log(this.props);
+    // console.log(this.props);
     this.drawToCanvas();
   }
 
   componentDidUpdate() {
-    console.log('updated');
-    console.log(this.props);
+    // console.log('updated');
+    // console.log(this.props);
     this.drawToCanvas();
   }
 
@@ -208,13 +200,6 @@ class Canvas extends Component<Props> {
     this.addDrawing(x, y, dragging);
   }
 
-  mouseUp(e) {
-    if (this.props.painting) {
-      this.passDrawingData(e, true);
-      this.brushReset();
-    }
-  }
-
   mouseDown(e) {
     if (this.props.drawingEnabled) {
       this.props.handlePaintingStateChange(true);
@@ -222,34 +207,57 @@ class Canvas extends Component<Props> {
       this.passDrawingData(e, false);
     }
   }
-
+  mouseUp(e) {
+    if (this.props.painting) {
+      this.passDrawingData(e, true);
+      this.brushReset();
+    }
+  }
   mouseMove(e) {
     if (this.props.painting) {
       this.passDrawingData(e, true);
     }
   }
-
   mouseLeave() {
     if (this.props.painting) {
       this.brushReset();
     }
   }
+
+  touchStart(e) {
+    if (this.props.drawingEnabled) {
+      this.props.handlePaintingStateChange(true);
+
+      this.passDrawingData(e.touches[0], false);
+    }
+  }
+
+  touchMove(e) {
+    if (this.props.painting) {
+      this.passDrawingData(e.touches[0], true);
+    }
+  }
+
+  touchStop() {
+    this.brushReset();
+  }
+
   render() {
     return (
-      <div id="grid" style={gridStyle}>
-        <Paper style={paperStyle} zDepth={5}>
+      <div id="grid" className="canvasGrid">
+        <Paper className="paperStyle" zDepth={5}>
           <canvas
             id="Canvas"
             style={canvasStyle}
             height={canvasStyle.height}
             width={canvasStyle.width}
             onMouseDown={this.mouseDown}
-            onTouchStart={this.mouseDown}
             onMouseMove={this.mouseMove}
-            onTouchMove={this.mouseMove}
             onMouseUp={this.mouseUp}
-            onTouchEnd={this.mouseUp}
             onMouseLeave={this.mouseLeave}
+            onTouchStart={this.touchStart}
+            onTouchMove={this.touchMove}
+            onTouchEnd={this.touchStop}
             // $FlowFixMe flow does not support this
             ref={this.canvas}
           />
