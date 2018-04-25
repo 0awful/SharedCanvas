@@ -42,51 +42,20 @@ body {
   height: 13.33vw;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1024px) and (max-width: 1366px) {
+  .paperStyle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -400px;
+    margin-top: -400px;
+  }
+
   .circle {
-    width: 140px;
-    height: 140px;
+    width: 14.64vh;
+    height: 14.64vh;
   }
 }
-
-@media (max-width: 775px) {
-  /* canvas is now beginning to obscure */
-
-  .circle {
-    height: 17.83vh;
-    width: 17.83vh;
-  }
-}
-
-@media (max-width: 600px) {
-  /* canvas is now beginning to obscure */
-  .circle {
-    height: 7vw;
-    width: 7vw;
-  }
-}
-
-@media (max-width: 500px) {
-  /* canvas is now beginning to obscure */
-  .circle {
-    height: 7vw;
-    width: 7vw;
-  }
-}
-
-/*
-@media (max-width: 1235px) {
-  .circle {
-    height: 86px;
-    width: 86px;
-  }
-}
-
-@media (max-width: 600px) {
-    height: 300px;
-    width: 300px;
-  }
-}  */
 
 p {
   -webkit-touch-callout: none;
