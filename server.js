@@ -1,7 +1,13 @@
 const keyStore = require('./keyStore.js');
 
 const host = '0.0.0.0';
-const port = 3000;
+let port = 9000;
+
+/* eslint-disable */
+if (process.env.NODE_ENV === 'development') {
+  /* eslint-enable */
+  port = 3000;
+}
 
 const http = require('http');
 
@@ -38,6 +44,7 @@ function handleHTTP(req, res) {
 }
 
 const httpServe = http.createServer(handleHTTP).listen(port, host);
+console.log('server is listening on ', port);
 
 const io = require('socket.io').listen(httpServe);
 
