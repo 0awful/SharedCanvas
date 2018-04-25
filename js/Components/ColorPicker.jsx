@@ -5,17 +5,7 @@ import Paper from 'material-ui/Paper';
 import { setBrushColor } from '../actionCreators';
 
 const colorPickerStyle = {
-  left: 0,
-  bottom: 0,
-  backgroundColor: 'rgb(0,188,212)',
-  position: 'fixed',
-  height: 100,
-  width: 100,
-  margin: 20,
-  textAlign: 'center',
-  display: 'grid',
-  gridTemplateRows: 'repeat(3,1fr)',
-  gridTemplateColumns: '10% auto 10%'
+  backgroundColor: 'rgb(0,188,212)'
 };
 
 const pickerStyle = {
@@ -49,13 +39,12 @@ const ColorPicker = (props: {
     <Paper
       onClick={clickFunction}
       id="ColorPickerBody"
+      className="circle colorPicker"
       style={colorPickerStyle}
       zDepth={4}
       circle
     >
-      <p style={pickerStyle} className="unselectable">
-        {selectorText}
-      </p>
+      <p style={pickerStyle}>{selectorText}</p>
     </Paper>
   );
 };

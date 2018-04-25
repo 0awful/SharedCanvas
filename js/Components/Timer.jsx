@@ -4,17 +4,7 @@ import { connect } from 'react-redux';
 import Paper from 'material-ui/Paper';
 
 const timerStyle = {
-  right: 0,
-  bottom: 0,
-  backgroundColor: 'rgb(0,188,212)',
-  position: 'fixed',
-  height: 100,
-  width: 100,
-  margin: 20,
-  textAlign: 'center',
-  display: 'grid',
-  gridTemplateRows: 'repeat(3,1fr)',
-  gridTemplateColumns: 'repeat(3,1fr)'
+  backgroundColor: 'rgb(0,188,212)'
 };
 
 const pStyle = {
@@ -23,7 +13,11 @@ const pStyle = {
   fontSize: '20px'
 };
 
-const Timer = (props: { timerValue: number, painting: boolean }) => {
+const Timer = (props: {
+  timerValue: number,
+  painting: boolean,
+  brushColor: string
+}) => {
   let displayValue = props.timerValue;
   if (props.timerValue === 0) {
     if (props.painting) {
@@ -33,18 +27,30 @@ const Timer = (props: { timerValue: number, painting: boolean }) => {
     }
   }
 
+  timerStyle.backgroundColor = props.brushColor;
   return (
-    <Paper id="Timer" style={timerStyle} zDepth={4} circle>
-      <p id="TimerValue" style={pStyle} className="unselectable">
+    <Paper
+      id="Timer"
+      style={timerStyle}
+      zDepth={4}
+      className="circle timer"
+      circle
+    >
+      <p id="TimerValue" style={pStyle}>
         {displayValue}
       </p>
     </Paper>
   );
 };
 
-const mapStateToProps = (state: { timerValue: number, painting: boolean }) => ({
+const mapStateToProps = (state: {
+  timerValue: number,
+  painting: boolean,
+  brushColor: string
+}) => ({
   timerValue: state.timerValue,
-  painting: state.painting
+  painting: state.painting,
+  brushColor: state.brushColor
 });
 
 export default connect(mapStateToProps)(Timer);

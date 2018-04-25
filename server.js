@@ -1,7 +1,7 @@
 const keyStore = require('./keyStore.js');
 
-const host = 'localhost';
-const port = 9000;
+const host = '0.0.0.0';
+const port = 3000;
 
 const http = require('http');
 
@@ -47,7 +47,7 @@ function handleIO(socket) {
   }
 
   sockets.push(socket);
-  console.log('should be emitting drawings');
+
   socket.emit('updateDrawings', drawings);
 
   socket.on('disconnect', disconnect);
