@@ -194,9 +194,12 @@ class Canvas extends Component<Props> {
 
   passDrawingData(e, dragging) {
     // $FlowFixMe flow does not support this
-    const x = e.pageX - this.canvas.current.offsetLeft;
+    const rect = this.canvas.current.getBoundingClientRect();
     // $FlowFixMe flow does not support this
-    const y = e.pageY - this.canvas.current.offsetTop;
+    const x = e.pageX - rect.x;
+
+    // $FlowFixMe flow does not support this
+    const y = e.pageY - rect.y;
     this.addDrawing(x, y, dragging);
   }
 
