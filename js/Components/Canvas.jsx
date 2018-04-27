@@ -196,10 +196,10 @@ class Canvas extends Component<Props> {
     // $FlowFixMe flow does not support this
     const rect = this.canvas.current.getBoundingClientRect();
     // $FlowFixMe flow does not support this
-    const x = e.pageX - rect.x;
+    const x = e.pageX - rect.x - window.scrollX;
 
     // $FlowFixMe flow does not support this
-    const y = e.pageY - rect.y;
+    const y = e.pageY - rect.y - window.scrollY;
     this.addDrawing(x, y, dragging);
   }
 
