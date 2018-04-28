@@ -1,4 +1,4 @@
-const keyStore = require('./keyStore.js');
+const stores = require('./server/stores.js');
 
 const host = '0.0.0.0';
 let port = 9000;
@@ -17,6 +17,7 @@ const staticFiles = new nodeStatic.Server(__dirname);
 
 let drawings = {};
 const sockets = [];
+const store = new stores.KeyStore();
 
 function handleHTTP(req, res) {
   if (req.method === 'GET') {
@@ -60,7 +61,7 @@ function handleIO(socket) {
   socket.on('disconnect', disconnect);
 
   socket.on('drawing', (key, drawing) => {
-    if (keyStore.checkKey(key)) {
+    if (store.checkKey(key)) {
       if (drawings[key]) {
         const array = drawings[key];
         array.push(drawing);
@@ -88,7 +89,7 @@ function handleIO(socket) {
 
   socket.on('requestKey', () => {
     console.log('client is requesting a key');
-    const key = keyStore.guardedKey();
+    const key = store.guardedKey();
     console.log('serving key: ', key);
     socket.emit('key', key);
   });
