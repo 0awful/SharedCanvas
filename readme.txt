@@ -1,1 +1,4 @@
-This is a humanities project by Izaac Wilkowski under the MIT standard license.
+# Shared Canvas:
+
+A collaborative drawing project
+hosted, now and forever, at [here](http://sharedcanv.us)
