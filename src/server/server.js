@@ -1,4 +1,4 @@
-const stores = require('./server/stores.js');
+const stores = require('./stores.js');
 
 const host = '0.0.0.0';
 let port = 9000;
