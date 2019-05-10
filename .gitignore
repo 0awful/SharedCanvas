@@ -1,4 +1,3 @@
-public/bundle.js
 node_modules/
 .eslintcache
 coverage/
@@ -11,3 +10,5 @@ _site/
 *.iml
 .idea/
 .vscode
+.cache
+dist/
