@@ -30,19 +30,16 @@ function handleHTTP(req, res) {
       console.log(drawings);
     }
     if (req.url === '/') {
-			console.log("req.url trigged", req.url)
       req.addListener('end', () => {
         req.url = req.url.replace('/', 'dist/index.html');
         staticFiles.serve(req, res);
       });
       req.resume();
     } else {
-			// req.addListener('end', () => {
-				console.log("before replace", req.url);
+			req.addListener('end', () => {
 				req.url = req.url.replace(req.url, `dist/${req.url}`);
-				console.log("after replace", req.url);
         staticFiles.serve(req, res);
-      // });
+      });
       req.resume();
     }
   } else {
